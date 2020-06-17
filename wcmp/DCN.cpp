@@ -36,7 +36,7 @@ SCIP_RETCODE DCN::find_best_dcn_routing(double send_speed) {
 			                             ss.str().c_str(), // name
 			                             0.0, // lower bound
 			                             1.0, // upper bound
-			                             1.0, // objective
+			                             200/sb_list_[i]->dcn_link_speed, // objective
 			                             SCIP_VARTYPE_CONTINUOUS)); // variable type
 			SCIP_CALL(SCIPaddVar(scip, x[i][j]));  //Adding the variable
 		}
@@ -81,6 +81,10 @@ SCIP_RETCODE DCN::find_best_dcn_routing(double send_speed) {
 		                                    1)); // RHS of the constraint
         SCIP_CALL(SCIPaddCons(scip, equal_cons[i]));
 	}
+
+	// set the constraint: len(path) <= 2
+	// I encounter a problem here:
+	// the number of variables is num_sb*(num_sb-1)*(num*sb-1), I suppose there is a problem with my implementation
 
 	// Release the constraints
 	for (int i=0; i<num_sb; ++i) {
