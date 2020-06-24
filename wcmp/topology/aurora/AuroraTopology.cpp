@@ -36,6 +36,7 @@ AuroraTopology::AuroraTopology() {
 			}
 	// add DCN link
 	// determine source and destination superblocks
+	int cnt = 0;
 	for (int src_sb=0; src_sb<NUM_SB_PER_DCN; ++src_sb)
 		for (int dst_sb=0; dst_sb<NUM_SB_PER_DCN; ++dst_sb)
 			if (dst_sb != src_sb)
@@ -48,8 +49,9 @@ AuroraTopology::AuroraTopology() {
 								// determine the source and destination s3
 								int src = src_sb*NUM_S3_PER_SB+src_mb*NUM_S3_PER_MB+src_sw;
 								int dst = dst_sb*NUM_S3_PER_SB+dst_mb*NUM_S3_PER_MB+((src_sw+i*2)%NUM_S3_PER_MB);
-								auto *tmp_link = new Link(s3_list[src], s3_list[dst], std::min(test_SBs[src_sb], test_SBs[dst_sb]));
+								auto *tmp_link = new Link(s3_list[src], s3_list[dst], std::min(test_SBs[src_sb], test_SBs[dst_sb]), cnt);
 								dcn_link_list.push_back(tmp_link);
+								++cnt;
 							}
 						}
 	// add links between s2 and s3
@@ -63,7 +65,7 @@ AuroraTopology::AuroraTopology() {
 					// build bidirection links
 					int s3_id = sb*NUM_S3_PER_SB+mb*NUM_S3_PER_MB+s3_sw;
 					int s2_id = sb*NUM_S2_PER_SB+mb*NUM_S2_PER_MB+s2_sw;
-					auto *tmp_link = new Link(s3_list[s3_id], s2_list[s2_id], BW_S2_S3);
+					auto *tmp_link = new Link(s3_list[s3_id], s2_list[s2_id], BW_S2_S3, cnt);
 					mid_link_list.push_back(tmp_link);
 				}
 			}
@@ -78,7 +80,7 @@ AuroraTopology::AuroraTopology() {
 					// build bidirection links
 					int s2_id = sb*NUM_S3_PER_SB+mb*NUM_S3_PER_MB+s2_sw;
 					int s1_id = sb*NUM_S1_PER_SB+mb*NUM_S1_PER_MB+s1_sw;
-					auto *tmp_link = new Link(s2_list[s2_id], s1_list[s1_id], BW_S2_S3);
+					auto *tmp_link = new Link(s2_list[s2_id], s1_list[s1_id], BW_S2_S3, cnt);
 					tor_link_list.push_back(tmp_link);
 				}
 			}

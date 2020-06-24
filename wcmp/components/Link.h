@@ -16,8 +16,9 @@ public:
 	Switch *destination;
 	double capacity;
 	std::string name;
+	int id;
 
-	Link(Switch* src, Switch* dst, double cap);
+	Link(Switch* src, Switch* dst, double cap, int ID);
 
 };
 

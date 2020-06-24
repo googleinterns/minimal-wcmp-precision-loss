@@ -6,16 +6,16 @@
 
 static double test_SBs[5] = {40, 40, 100, 100, 200};
 static double sb_pair_demand = 10;
-//static double traffic_matrix[25] = {40, 40, 40, 40, 40,
-//                             40, 40, 40, 40, 40,
-//                             40, 40, 40, 40, 40,
-//                             40, 40, 40, 40, 40,
-//                             40, 40, 40, 40, 40};
-static double traffic_matrix[25] = {40, 0, 0, 0, 0,
-                                    0, 0, 0, 0, 0,
-                                    0, 0, 0, 0, 0,
-                                    0, 0, 0, 0, 0,
-                                    0, 0, 0, 0, 0};
+static double traffic_matrix[25] = {4, 4, 4, 4, 4,
+                             4, 4, 4, 4, 4,
+                             4, 4, 4, 4, 4,
+                             4, 4, 4, 4, 4,
+                             4, 4, 4, 4, 4};
+//static double traffic_matrix[25] = {40, 0, 0, 0, 0,
+//                                    0, 0, 0, 0, 0,
+//                                    0, 0, 0, 0, 0,
+//                                    0, 0, 0, 0, 0,
+//                                    0, 0, 0, 0, 0};
 
 SimpleTopology::SimpleTopology() {
 	// add s3 switches
@@ -41,6 +41,7 @@ SimpleTopology::SimpleTopology() {
 			}
 	// add DCN link
 	// determine source and destination superblocks
+	int cnt = 0;
 	for (int src_sb=0; src_sb<NUM_SB_PER_DCN; ++src_sb)
 		for (int dst_sb=0; dst_sb<NUM_SB_PER_DCN; ++dst_sb)
 			if (dst_sb != src_sb)
@@ -52,8 +53,9 @@ SimpleTopology::SimpleTopology() {
 							// determine the source and destination s3
 							int src = src_sb*NUM_S3_PER_SB+src_mb*NUM_S3_PER_MB+i;
 							int dst = dst_sb*NUM_S3_PER_SB+dst_mb*NUM_S3_PER_MB+i;
-							auto *tmp_link = new Link(s3_list[src], s3_list[dst], std::min(test_SBs[src_sb], test_SBs[dst_sb]));
+							auto *tmp_link = new Link(s3_list[src], s3_list[dst], std::min(test_SBs[src_sb], test_SBs[dst_sb]), cnt);
 							dcn_link_list.push_back(tmp_link);
+							++cnt;
 						}
 }
 
@@ -209,6 +211,7 @@ SCIP_RETCODE SimpleTopology::find_best_dcn_routing() {
 		std::vector<SCIP_VAR*> vars;
 		std::vector<SCIP_Real> values;
 
+		// iterate all the paths to check whether contain that link
 		for (int src_sb=0; src_sb<num_sb; ++src_sb) {
 			for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
 				if (src_sb==dst_sb) continue;
@@ -217,12 +220,13 @@ SCIP_RETCODE SimpleTopology::find_best_dcn_routing() {
 				paths = find_paths(src_sb, dst_sb);
 				for (int p=0; p<paths.size(); ++p) {
 					for (Link* link : paths[p]) {
-						if ((link->source->switch_name==dcn_link_list[i]->source->switch_name)
-							&& (link->destination->switch_name==dcn_link_list[i]->destination->switch_name)) {
+						std::cout << link->id << " " << dcn_link_list[i]->id << std::endl;
+						if (link->id==dcn_link_list[i]->id) {
 							// add variables
 							vars.push_back(x[src_sb*num_sb+dst_sb][p]);
 							// add coefficients
-							values.push_back(traffic_matrix[src_sb*num_sb+dst_sb]/dcn_link_list[i]->capacity);
+							std::cout << "coeffi: " << double(traffic_matrix[src_sb*num_sb+dst_sb])/double(dcn_link_list[i]->capacity) << std::endl;
+							values.push_back(traffic_matrix[src_sb*num_sb+dst_sb]/double(dcn_link_list[i]->capacity));
 						}
 					}
 				}
@@ -235,8 +239,8 @@ SCIP_RETCODE SimpleTopology::find_best_dcn_routing() {
 		for (int v=0; v<values.size(); ++v) scip_values[v] = -values[v];
 
 		// add u
-		scip_vars[-1] = u;
-		scip_values[-1] = 1;
+		scip_vars[vars.size()] = u;
+		scip_values[vars.size()] = 1;
 
 		std::stringstream ss;
 		ss << "cons_" << dcn_link_list[i]->name;
@@ -256,7 +260,6 @@ SCIP_RETCODE SimpleTopology::find_best_dcn_routing() {
 	// Release the constraints
 	for (int i=0; i<num_sb; ++i) {
 		for (int j=0;j<num_sb; ++j) {
-			std::cout << i*num_sb+j << std::endl;
 			SCIP_CALL(SCIPreleaseCons(scip, &equal_cons[i*num_sb+j]));
 			for (SCIP_CONS* con : cons[i*num_sb+j]) {
 				SCIP_CALL(SCIPreleaseCons(scip, &con));
