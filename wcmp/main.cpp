@@ -3,24 +3,37 @@
 //
 
 #include "main.h"
-#include "DCN.h"
-#include "SuperBlock.h"
+#include "components/DCN.h"
+#include "topology/simple/SimpleTopology.h"
+#include "topology/aurora/AuroraTopology.h"
+
 #include <iostream>
 
-//double test_SBs[6] = {40, 40, 40, 100, 100, 200};
-double test_SBs[3] = {40, 100, 200};
-double send_speed = 30;
+std::string ntoa(double n) {
+	std::stringstream s;
+	s << n;
+	return s.str();
+}
+
+std::string itoa(int n) {
+	std::stringstream s;
+	s << n;
+	return s.str();
+}
 
 int main(int argc, char **argv) {
-	// Construct the simple network with above test SuperBlocks
-	DCN* simple_network = new DCN();
-	for (int i=0; i<sizeof(test_SBs)/ sizeof(test_SBs[0]); ++i) {
-		simple_network->add_superblock(test_SBs[i]);
-	}
+	auto *network = new SimpleTopology();
+//	auto *network = new AuroraTopology();
+
+	// test functions
+	std::vector<PATH> paths = network->find_paths(0,1);
+	for (PATH path : paths) network->print_path(path);
+
 	// find the best routing policy
 	SCIP_RETCODE retcode;
-	retcode = simple_network->find_best_dcn_routing(send_speed);
+	retcode = network->find_best_dcn_routing();
 	if (retcode != SCIP_OKAY) {
 		std::cout << "The SCIP program is wrong. " << std::endl;
 	}
+	return 0;
 }

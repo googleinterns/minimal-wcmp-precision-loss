@@ -10,20 +10,12 @@
 #include <vector>
 #include <scip/scip.h>
 #include <scip/scipdefplugins.h>
-#include "SuperBlock.h"
+#include "Switch.h"
+#include "Link.h"
 
 // Define a DCN network with a number of SuperBlocks,
 // each of them has different northbound bandwidth
 class DCN {
-
-private:
-	std::vector<SuperBlock *> sb_list_;
-
-public:
-	// the initial function of DCN class
-	DCN();
-	void add_superblock(double link_speed);
-	SCIP_RETCODE find_best_dcn_routing(double send_speed);
 
 };
 
