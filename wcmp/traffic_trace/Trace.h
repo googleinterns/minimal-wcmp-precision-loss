@@ -18,11 +18,22 @@
 class Trace {
 
 public:
+	// constructor function
 	Trace();
+
+	// matrix generation function for sparse method
 	std::vector<std::vector<double>> generate_sparse_matrix(int num_sb);
+
+	// matrix generation function for permutation method
 	std::vector<std::vector<double>> generate_permutation_matrix(int num_sb);
+
+	// matrix generation function for stride method
 	std::vector<std::vector<double>> generate_stride_matrix(int num_sb);
+
+	// matrix generation function for symmetric method
 	std::vector<std::vector<double>> generate_symmetric_matrix(int num_sb);
+
+	// matrix generation function for random method
 	std::vector<std::vector<double>> generate_random_matrix(int num_sb);
 };
 

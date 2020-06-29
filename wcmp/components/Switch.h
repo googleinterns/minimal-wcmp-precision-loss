@@ -22,6 +22,10 @@ public:
 	SwitchType switch_type;
 	std::string switch_name;
 
+	// constructor function
+	// use hierarchy information to locate the switch
+	// the mb_id and sb_id are both local index, not global index
+	// the switch name is also defined by its location
 	Switch(int sw_id, int mb_id, int sb_id, SwitchType sw_type);
 
 };

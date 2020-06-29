@@ -13,6 +13,10 @@ static double traffic_matrix[25] = {40, 40, 40, 40, 40,
                              40, 40, 40, 40, 40};
 
 AuroraTopology::AuroraTopology() {
+	// initial traffic matrix
+	auto trace = new Trace();
+	traffic_matrix = trace->generate_sparse_matrix(NUM_SB_PER_DCN);
+
 	// add s3 switches
 	for (int i=0; i<NUM_SB_PER_DCN; ++i)
 		for (int j=0; j<NUM_MB_PER_SB; ++j)
@@ -84,6 +88,46 @@ AuroraTopology::AuroraTopology() {
 					tor_link_list.push_back(tmp_link);
 				}
 			}
+	// initialize the dcn path vectors
+	dcn_path_list = std::vector<std::vector<std::vector<Path *>>>(NUM_SB_PER_DCN,std::vector<std::vector<Path *>>(NUM_SB_PER_DCN));
+
+	// list and store all the DCN paths
+	for (int src_sb=0; src_sb<NUM_SB_PER_DCN; ++src_sb)
+		for (int dst_sb=0; dst_sb<NUM_SB_PER_DCN; ++dst_sb)
+			if (dst_sb != src_sb) {
+				int index = 0;
+				// add the direct paths
+				std::vector<Link *> direct_paths;
+				direct_paths = this->find_links(src_sb, dst_sb);
+				for (Link* l : direct_paths) {
+					Path* tmp_path = new Path(index, l);
+					++index;
+					dcn_path_list[src_sb][dst_sb].push_back(tmp_path);
+					l->add_path(tmp_path);
+				}
+				// add the transit paths
+				for (int trans_sb = 0; trans_sb < NUM_SB_PER_DCN; ++trans_sb) {
+					if ((trans_sb != src_sb) && (trans_sb != dst_sb)) {
+						std::vector<Link *> first_hops;
+						std::vector<Link *> second_hops;
+						first_hops = this->find_links(src_sb, trans_sb);
+						second_hops = this->find_links(trans_sb, dst_sb);
+						for (Link *first : first_hops) {
+							for (Link *second : second_hops) {
+								std::vector<Link *> trans_path;
+								trans_path.push_back(first);
+								trans_path.push_back(second);
+								Path *new_path = new Path(index, trans_path);
+								++index;
+								dcn_path_list[src_sb][dst_sb].push_back(new_path);
+								for (Link* l : trans_path)
+									l->add_path((new_path));
+							}
+						}
+					}
+				}
+			}
+	std::cout << "Topology initialized" << std::endl;
 }
 
 std::vector<Link *> AuroraTopology::find_links(int src_sb, int dst_sb) {
@@ -175,17 +219,16 @@ void AuroraTopology::print_path(std::vector<Link *> path) {
 
 // find the best routing policy in the DCN level
 SCIP_RETCODE AuroraTopology::find_best_dcn_routing() {
-	std::cout << "begin" << std::endl;
 	int num_sb = NUM_SB_PER_DCN; // get the number of SuperBlocks
 
 	SCIP* scip = nullptr;
 	SCIP_CALL(SCIPcreate(&scip)); // create the SCIP environment
 
 	SCIP_CALL(SCIPincludeDefaultPlugins(scip)); // include default plugins
-	SCIP_CALL(SCIPcreateProbBasic(scip, "MLU")); // create the SCIP problem
+	SCIP_CALL(SCIPcreateProbBasic(scip, "MLU_DCN")); // create the SCIP problem
 	SCIP_CALL(SCIPsetObjsense(scip, SCIP_OBJSENSE_MINIMIZE)); // set object sense to be minimize
 
-	std::cout << "create" << std::endl;
+	std::cout << "SCIP setup successfully" << std::endl;
 
 	SCIP_VAR* u; // MLU
 	SCIP_CALL(SCIPcreateVarBasic(scip,
@@ -197,81 +240,57 @@ SCIP_RETCODE AuroraTopology::find_best_dcn_routing() {
 	                             SCIP_VARTYPE_CONTINUOUS)); // variable type
 	SCIP_CALL(SCIPaddVar(scip, u));  //Adding the variable
 
-	std::vector<std::vector<SCIP_VAR*>> x; // initialize the variables
-	for (int i=0; i<num_sb; ++i) {
-		for (int j=0; j<num_sb; ++j) {
-			x.emplace_back(std::vector<SCIP_VAR*>());
-			std::vector<std::vector<Link *>> paths;
-			paths = find_paths(i, j);
+	std::vector<std::vector<std::vector<SCIP_VAR*>>> x; // initialize the variables
+	x = std::vector<std::vector<std::vector<SCIP_VAR*>>>(NUM_SB_PER_DCN,std::vector<std::vector<SCIP_VAR *>>(NUM_SB_PER_DCN));
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
+			if (src_sb == dst_sb) continue;
+			std::vector<Path *> paths;
+			paths = dcn_path_list[src_sb][dst_sb];
 			for (int p=0; p<paths.size(); ++p) {
-				x[i*num_sb+j].emplace_back((SCIP_VAR *) nullptr);
+				x[src_sb][dst_sb].emplace_back((SCIP_VAR *) nullptr);
 				std::stringstream ss;
-				ss << "x_" << i << "_" << j << "_" << p;
+				ss << "x_" << src_sb << "_" << dst_sb << "_" << p;
 				SCIP_CALL(SCIPcreateVarBasic(scip,
-				                             &x[i*num_sb+j][p], // variable
+				                             &x[src_sb][dst_sb][p], // variable
 				                             ss.str().c_str(), // name
 				                             0.0, // lower bound
 				                             1.0, // upper bound
 				                             0.0, // objective
 				                             SCIP_VARTYPE_CONTINUOUS)); // variable type
-				SCIP_CALL(SCIPaddVar(scip, x[i*num_sb+j][p]));  //Adding the variable
+				SCIP_CALL(SCIPaddVar(scip, x[src_sb][dst_sb][p]));  //Adding the variable
 			}
 		}
 	}
 
-	std::cout << "create variables" << std::endl;
-
-	std::vector<std::vector<SCIP_CONS*>> cons; // set the constraint 0<x_{ijp}<1
-	for (int i=0; i<num_sb; ++i) {
-		for (int j=0; j<num_sb; ++j) {
-			cons.emplace_back(std::vector<SCIP_CONS*>());
-			std::vector<std::vector<Link *>> paths;
-			paths = find_paths(i, j);
-			for (int p=0; p<paths.size(); ++p) {
-				cons[i*num_sb+j].emplace_back((SCIP_CONS *) nullptr); // add constraint
-
-				SCIP_Real values[1]={1.0};
-				std::stringstream ss;
-				ss << "bound_cons_" << i << "_" << j << "_" << p;
-				SCIP_CALL(SCIPcreateConsBasicLinear(scip,
-				                                    &cons[i*num_sb+j][p], // constraint
-				                                    ss.str().c_str(), // name
-				                                    1, // how many variables
-				                                    &x[i*num_sb+j][p], // array of pointers to various variables
-				                                    values, // array of values of the coefficients of corresponding variables
-				                                    0, // LHS of the constraint
-				                                    1)); // RHS of the constraint
-				SCIP_CALL(SCIPaddCons(scip, cons[i*num_sb+j][p]));
-			}
-		}
-	}
-
-	std::cout << "create bound cons" << std::endl;
+	std::cout << "Variables created" << std::endl;
 
 	std::vector<SCIP_CONS*> equal_cons; // set the constraint Sum(x_{ij})=1
-	for (int i=0; i<num_sb; ++i) {
-		for (int j=0; j<num_sb; ++j) {
+	int cnt = 0;
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
+			if (src_sb == dst_sb) continue; // skip the self loop
 			equal_cons.emplace_back((SCIP_CONS *) nullptr); // add constraint
-			std::vector<std::vector<Link *>> paths;
-			paths = find_paths(i, j);
-
+			std::vector<Path *> paths;
+			paths = dcn_path_list[src_sb][dst_sb];
 			SCIP_Real values[paths.size()];
-			for (int k=0; k<paths.size(); ++k) values[k]=1;
+			for (int k=0; k<paths.size(); ++k) values[k]=1.0;
 			std::stringstream ss;
-			ss << "cons_" << i;
+			ss << "cons_equal1_" << src_sb << "_" << dst_sb;
 			SCIP_CALL(SCIPcreateConsBasicLinear(scip,
-			                                    &equal_cons[i*num_sb+j], // constraint
+			                                    &equal_cons[cnt], // constraint
 			                                    ss.str().c_str(), // name
 			                                    paths.size(), // how many variables
-			                                    &x[i*num_sb+j][0], // array of pointers to various variables
+			                                    &x[src_sb][dst_sb][0], // array of pointers to various variables
 			                                    values, // array of values of the coefficients of corresponding variables
 			                                    1, // LHS of the constraint
 			                                    1)); // RHS of the constraint
-			SCIP_CALL(SCIPaddCons(scip, equal_cons[i*num_sb+j]));
+			SCIP_CALL(SCIPaddCons(scip, equal_cons[cnt]));
+			++cnt;
 		}
 	}
 
-	std::cout << "create equal cons" << std::endl;
+	std::cout << "Equal constraints created." << std::endl;
 
 	std::vector<SCIP_CONS*> link_cons; // set the constraint: link utilization < u
 	for (int i=0; i<dcn_link_list.size(); ++i) {
@@ -279,29 +298,22 @@ SCIP_RETCODE AuroraTopology::find_best_dcn_routing() {
 		std::vector<SCIP_VAR*> vars;
 		std::vector<SCIP_Real> values;
 
-		for (int src_sb=0; src_sb<num_sb; ++src_sb) {
-			for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
-				// iterate all the paths
-				std::vector<std::vector<Link *>> paths;
-				paths = find_paths(src_sb, dst_sb);
-				for (int p=0; p<paths.size(); ++p) {
-					for (Link* link : paths[p]) {
-						// add variables
-						vars.push_back(x[src_sb*num_sb+dst_sb][p]);
-						// add coefficients
-						values.push_back(traffic_matrix[src_sb*num_sb+dst_sb]/dcn_link_list[i]->capacity);
-					}
-				}
-			}
+		// iterate all the paths to check whether contain that link
+		for (Path* path : dcn_link_list[i]->related_dcn_paths) {
+			int src_sb = path->src_sw->superblock_id;
+			int dst_sb = path->dst_sw->superblock_id;
+			vars.push_back(x[src_sb][dst_sb][path->index]);
+			values.push_back(traffic_matrix[src_sb][dst_sb]/double(dcn_link_list[i]->capacity));
 		}
 
 		SCIP_VAR* scip_vars[vars.size()+1];
 		for (int v=0; v<vars.size(); ++v) scip_vars[v] = vars[v];
 		SCIP_Real scip_values[values.size()+1];
 		for (int v=0; v<values.size(); ++v) scip_values[v] = -values[v];
+
 		// add u
-		scip_vars[-1] = u;
-		scip_values[-1] = 1;
+		scip_vars[vars.size()] = u;
+		scip_values[vars.size()] = 1;
 
 		std::stringstream ss;
 		ss << "cons_" << dcn_link_list[i]->name;
@@ -316,44 +328,67 @@ SCIP_RETCODE AuroraTopology::find_best_dcn_routing() {
 		SCIP_CALL(SCIPaddCons(scip, link_cons[i]));
 	}
 
-	std::cout << "create link cons" << std::endl;
+	std::cout << "Link constraints created" << std::endl;
 
 	// Release the constraints
-	for (int i=0; i<num_sb; ++i) {
-		for (int j=0;j<num_sb; ++j) {
-			std::cout << i*num_sb+j << std::endl;
-			SCIP_CALL(SCIPreleaseCons(scip, &equal_cons[i*num_sb+j]));
-			for (SCIP_CONS* con : cons[i*num_sb+j]) {
-				SCIP_CALL(SCIPreleaseCons(scip, &con));
-			}
-		}
+	for (SCIP_CONS* con : equal_cons) {
+		SCIP_CALL(SCIPreleaseCons(scip, &con));
 	}
-	std::cout << "release constraints 1" << std::endl;
 	for (SCIP_CONS* con : link_cons) {
 		SCIP_CALL(SCIPreleaseCons(scip, &con));
 	}
-
-	std::cout << "release constraints 2" << std::endl;
+	std::cout << "Constraints released" << std::endl;
 
 	// Solve the problem
 	SCIP_CALL(SCIPsolve(scip));
-
-	std::cout << "solve the problem" << std::endl;
 
 	// Get the solutions
 	SCIP_SOL* sol = nullptr;
 	sol = SCIPgetBestSol(scip);
 
-	std::cout << "problem result" << std::endl;
+	scip_result = std::vector<std::vector<std::vector<double>>>(NUM_SB_PER_DCN,std::vector<std::vector<double>>(NUM_SB_PER_DCN));
+	std::cout << "problem result: " << SCIPgetSolVal(scip, sol, u) << std::endl;
+	for (int src_sb=0; src_sb<NUM_SB_PER_DCN; ++src_sb)
+		for (int dst_sb=0; dst_sb<NUM_SB_PER_DCN; ++dst_sb) {
+			if (src_sb==dst_sb) continue;
+			std::cout << src_sb << "->" << dst_sb << ": ";
+			for (Path* p : dcn_path_list[src_sb][dst_sb]) {
+				std::cout << SCIPgetSolVal(scip, sol, x[src_sb][dst_sb][p->index]) << ", ";
+				scip_result[src_sb][dst_sb].push_back(SCIPgetSolVal(scip, sol, x[src_sb][dst_sb][p->index]));
+			}
+			std::cout << std::endl;
+		}
+
 
 	SCIP_CALL((SCIPwriteOrigProblem(scip, "MLU.lp", nullptr, FALSE)));
-	for (int i=0; i<num_sb; ++i) {
-		for (int j=0;j<num_sb; ++j) {
-			for (SCIP_VAR* v : x[i*num_sb+j])
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0;dst_sb<num_sb; ++dst_sb) {
+			for (SCIP_VAR* v : x[src_sb][dst_sb])
 				SCIP_CALL(SCIPreleaseVar(scip, &v));
 		}
 	}
 	SCIP_CALL(SCIPreleaseVar(scip, &u));
 	SCIP_CALL(SCIPfree(&scip));
 	return SCIP_OKAY;
+}
+
+// TODO: WCMP weight can be calculated, but it is ignored here
+// TODO: reason given in the comments following
+void AuroraTopology::result_analysis() {
+	std::cout << "The path with 0 traffic is not printed. " << std::endl;
+	for (int src_sb=0; src_sb<NUM_SB_PER_DCN; ++src_sb)
+		for (int dst_sb=0; dst_sb<NUM_SB_PER_DCN; ++dst_sb)
+			if (src_sb != dst_sb) {
+				// print the traffic amount for each link
+				for (Path* p : dcn_path_list[src_sb][dst_sb]) {
+					double traffic_amount = traffic_matrix[src_sb][dst_sb]*scip_result[src_sb][dst_sb][p->index];
+					if (traffic_amount > 0) {
+						std::cout << traffic_amount << " Gbps of demand from u" << src_sb << "->" << dst_sb
+						          << "is placed on DCN " << p->links[0]->name << std::endl;
+					}
+				}
+				// print the WCMP group weight for each switch
+				// some doubts remaining, I still hold the problem about how to divide the groups, I will
+				// make a slides to show my concern on Wednesday's meeting
+			}
 }

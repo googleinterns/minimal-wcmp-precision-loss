@@ -5,6 +5,8 @@
 #include "Path.h"
 #include "Link.h"
 
+// instead of record the src_sb and dst_sb
+// the source switch and destination switch is recorded
 Path::Path(int idx, std::vector<Link *> link_list) {
 	for (Link* l : link_list)
 		links.push_back(l);
@@ -13,6 +15,8 @@ Path::Path(int idx, std::vector<Link *> link_list) {
 	index = idx;
 }
 
+// instead of record the src_sb and dst_sb
+// the source switch and destination switch is recorded
 Path::Path(int idx, Link * link){
 	links.push_back(link);
 	src_sw = link->source;

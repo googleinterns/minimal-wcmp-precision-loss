@@ -6,6 +6,10 @@
 
 static double test_SBs[10] = {100, 100, 40, 40, 200, 100, 40, 100, 200, 200};
 
+// constructor function
+// the links between s2 and s3, s1 and s2 are ignored here
+// the paths between s1 are also ignored
+// TODO: will be added for milestone 2
 DCNOnlyTopology::DCNOnlyTopology() {
 	// initial traffic matrix
 	auto trace = new Trace();
@@ -52,8 +56,6 @@ DCNOnlyTopology::DCNOnlyTopology() {
 					}
 				}
 
-	std::cout << "test5" << std::endl;
-
 	// initialize the dcn path vectors
 	dcn_path_list = std::vector<std::vector<std::vector<Path *>>>(NUM_SB_PER_DCN,std::vector<std::vector<Path *>>(NUM_SB_PER_DCN));
 
@@ -96,6 +98,8 @@ DCNOnlyTopology::DCNOnlyTopology() {
 	std::cout << "Topology initialized" << std::endl;
 }
 
+// TODO: can be changed to be a helper function
+// TODO: since it is not used by other classes
 std::vector<Link *> DCNOnlyTopology::find_links(int src_sb, int dst_sb) {
 	std::vector<Link *> result;
 	for (Link* link : dcn_link_list) {
@@ -136,6 +140,7 @@ std::vector<Link *> DCNOnlyTopology::find_links(int src_sb, int dst_sb) {
 //	}
 //}
 
+// TODO: can be optimized for clearance
 void DCNOnlyTopology::print_path(const std::vector<Link *> &path) {
 	for (Link* link : path) {
 		std::cout << link->name << " => ";
@@ -144,6 +149,7 @@ void DCNOnlyTopology::print_path(const std::vector<Link *> &path) {
 }
 
 // find the best routing policy in the DCN level
+// redundant constraints have been removed
 SCIP_RETCODE DCNOnlyTopology::find_best_dcn_routing() {
 	int num_sb = NUM_SB_PER_DCN; // get the number of SuperBlocks
 
@@ -298,6 +304,8 @@ SCIP_RETCODE DCNOnlyTopology::find_best_dcn_routing() {
 	return SCIP_OKAY;
 }
 
+// TODO: WCMP weight can be calculated, but it is ignored here
+// TODO: reason given in the comments following
 void DCNOnlyTopology::result_analysis() {
 	std::cout << "The path with 0 traffic is not printed. " << std::endl;
 	for (int src_sb=0; src_sb<NUM_SB_PER_DCN; ++src_sb)

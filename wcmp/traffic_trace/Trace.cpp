@@ -7,6 +7,7 @@
 
 Trace::Trace() = default;
 
+// set the traffic amount to be 10
 std::vector<std::vector<double>> Trace::generate_symmetric_matrix(int num_sb) {
 	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
 	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
@@ -17,6 +18,8 @@ std::vector<std::vector<double>> Trace::generate_symmetric_matrix(int num_sb) {
 	return matrix;
 }
 
+// use real distribution and mt to generate random number instead of rand()
+// for better performance and more uniform distribution
 std::vector<std::vector<double>> Trace::generate_random_matrix(int num_sb) {
 	// initial random
 	std::random_device rd;
@@ -32,6 +35,7 @@ std::vector<std::vector<double>> Trace::generate_random_matrix(int num_sb) {
 	return matrix;
 }
 
+// Only one element exists in the matrix
 std::vector<std::vector<double>> Trace::generate_sparse_matrix(int num_sb) {
 	// generate matrix
 	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
@@ -46,6 +50,7 @@ std::vector<std::vector<double>> Trace::generate_sparse_matrix(int num_sb) {
 	return matrix;
 }
 
+// permutation: src_sb + dst_sb == num_sb
 std::vector<std::vector<double>> Trace::generate_permutation_matrix(int num_sb) {
 	// generate matrix
 	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
@@ -60,6 +65,7 @@ std::vector<std::vector<double>> Trace::generate_permutation_matrix(int num_sb) 
 	return matrix;
 }
 
+// each source SuperBlock sends traffic to the next SuperBlock
 std::vector<std::vector<double>> Trace::generate_stride_matrix(int num_sb) {
 	// generate matrix
 	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));

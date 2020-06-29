@@ -32,10 +32,25 @@ public:
 	std::vector<std::vector<std::vector<Path *>>> dcn_path_list;
 	std::vector<std::vector<std::vector<double>>> scip_result;
 
+	// constructor function
+	// initialize the network topology and record the switches and links
+	// generate all the paths for the dcn connection
+	// and record path in both dcn_path_list and Link objects
+	// We will never find path or find links in the rest of the code
 	DCNOnlyTopology();
+
+	// Input: source superblock, destination superblock
+	// Return: all the direct dcn links between the src and dst
 	std::vector<Link *> find_links(int src_sb, int dst_sb);
+
+	// print the path with the link name
 	static void print_path(const std::vector<Link *> &path);
+
+	// Use SCIP to find the best traffic allocation method,
+	// follows the LP model on the document.
 	SCIP_RETCODE find_best_dcn_routing();
+
+	// Print the traffic allocation details
 	void result_analysis();
 
 };

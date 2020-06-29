@@ -28,20 +28,40 @@
 class AuroraTopology: public DCN {
 
 public:
+	std::vector<std::vector<double>> traffic_matrix;
 	std::vector<Switch *> s3_list;
 	std::vector<Switch *> s2_list;
 	std::vector<Switch *> s1_list;
 	std::vector<Link *> dcn_link_list;
 	std::vector<Link *> mid_link_list;
 	std::vector<Link *> tor_link_list;
+	std::vector<std::vector<std::vector<Path *>>> dcn_path_list;
+	std::vector<std::vector<std::vector<double>>> scip_result;
 
+	// constructor function
+	// initialize the network topology and record the switches and links
+	// generate all the paths for the dcn connection
+	// and record path in both dcn_path_list and Link objects
+	// We will never find path or find links in the rest of the code
 	AuroraTopology();
+
+	// Input: source superblock, destination superblock
+	// Return: all the direct dcn links between the src and dst
 	std::vector<Link *> find_links(int src_sb, int dst_sb);
+
 	std::vector<std::vector<Link *>> find_paths(int src_sb, int dst_sb);
+
 	std::vector<Link *> find_intra_links(int src_sb, int dst_sb);
+
 	std::vector<std::vector<Link *>> find_intra_paths(int src_sb, int dst_sb);
+
+	// print the path with the link name
 	void print_path(std::vector<Link *> path);
+
 	SCIP_RETCODE find_best_dcn_routing();
+
+	// Print the traffic allocation details
+	void result_analysis();
 
 };
 

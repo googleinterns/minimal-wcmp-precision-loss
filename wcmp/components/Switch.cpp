@@ -4,6 +4,7 @@
 
 #include "Switch.h"
 
+// TODO: the switch name can be changed for clearance
 Switch::Switch(int sw_id, int mb_id, int sb_id, SwitchType sw_type) {
 	switch_id = sw_id;
 	middleblock_id = mb_id;

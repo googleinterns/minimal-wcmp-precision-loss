@@ -25,7 +25,18 @@ public:
 	Switch* dst_sw;
 	int index;
 
+	// constructor function with a link vector
+	// used for transition path or direct path
+	// the idx represents the index of this path in dcn_path_list[src_sb][dst_sb]
+	//
+	// the idx can be used to accelerate the calculation in SCIP without iterate the path list
 	Path(int idx, std::vector<Link *> link_list);
+
+	// constructor function with a pointer to link
+	// used for direct path
+	// the idx represents the index of this path in dcn_path_list[src_sb][dst_sb]
+	//
+	// the idx can be used to accelerate the calculation in SCIP without iterate the path list
 	Path(int idx, Link * link);
 
 };
