@@ -1,9 +1,13 @@
 # minimal-wcmp-precision-loss
 
-The code for Milestone 1 include:
-	./*
-	components/*
-	topology/dcnonly/*
-	traffic_trace/*
+### The code for Milestone 1 include:
+
+	./*  
 	
-The aurora class is used for constructing the complete DCN network and achieve milestone 2.
+	components/*  
+	
+	topology/dcnonly/*  
+	
+	traffic_trace/*  
+	
+Note: The aurora class is used for constructing the complete DCN network and achieve milestone 2.
