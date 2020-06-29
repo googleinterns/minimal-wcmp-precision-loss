@@ -2,8 +2,8 @@
 // Created by wwt on 6/20/20.
 //
 
-#ifndef WCMP_AURORATOPOLOGY_H
-#define WCMP_AURORATOPOLOGY_H
+#ifndef WCMP_FULLTOPOLOGY_H
+#define WCMP_FULLTOPOLOGY_H
 
 
 #include <components/DCN.h>
@@ -22,10 +22,10 @@
 #define NUM_S2_PER_SB (NUM_S2_PER_MB*NUM_MB_PER_SB)
 #define NUM_S1_PER_SB (NUM_S1_PER_MB*NUM_MB_PER_SB)
 
-// The DCN network for the Whole Aurora topology
+// The DCN network for the Whole NETWORK topology
 // Used for Milestone 2, now as WIP
 // For Milestone 1, please refer to DCNOnlyTopology
-class AuroraTopology: public DCN {
+class FullTopology: public DCN {
 
 public:
 	std::vector<std::vector<double>> traffic_matrix;
@@ -43,7 +43,7 @@ public:
 	// generate all the paths for the dcn connection
 	// and record path in both dcn_path_list and Link objects
 	// We will never find path or find links in the rest of the code
-	AuroraTopology();
+	FullTopology();
 
 	// Input: source superblock, destination superblock
 	// Return: all the direct dcn links between the src and dst
@@ -66,4 +66,4 @@ public:
 };
 
 
-#endif //WCMP_AURORATOPOLOGY_H
+#endif //WCMP_FULLTOPOLOGY_H

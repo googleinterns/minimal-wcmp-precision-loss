@@ -2,7 +2,7 @@
 // Created by wwt on 6/20/20.
 //
 
-#include "AuroraTopology.h"
+#include "FullTopology.h"
 
 static double test_SBs[5] = {40, 40, 100, 100, 200};
 static double sb_pair_demand = 10;
@@ -12,7 +12,7 @@ static double traffic_matrix[25] = {40, 40, 40, 40, 40,
                              40, 40, 40, 40, 40,
                              40, 40, 40, 40, 40};
 
-AuroraTopology::AuroraTopology() {
+FullTopology::FullTopology() {
 	// initial traffic matrix
 	auto trace = new Trace();
 	traffic_matrix = trace->generate_sparse_matrix(NUM_SB_PER_DCN);
@@ -130,7 +130,7 @@ AuroraTopology::AuroraTopology() {
 	std::cout << "Topology initialized" << std::endl;
 }
 
-std::vector<Link *> AuroraTopology::find_links(int src_sb, int dst_sb) {
+std::vector<Link *> FullTopology::find_links(int src_sb, int dst_sb) {
 	std::vector<Link *> result;
 	for (Link* link : dcn_link_list) {
 		if ((link->source->superblock_id==src_sb) && (link->destination->superblock_id==dst_sb))
@@ -140,7 +140,7 @@ std::vector<Link *> AuroraTopology::find_links(int src_sb, int dst_sb) {
 }
 
 // WIP: need to change the params and codes
-std::vector<Link *> AuroraTopology::find_intra_links(int src_sb, int dst_sb) {
+std::vector<Link *> FullTopology::find_intra_links(int src_sb, int dst_sb) {
 	std::vector<Link *> result;
 	for (Link* link : dcn_link_list) {
 		if ((link->source->superblock_id==src_sb) && (link->destination->superblock_id==dst_sb))
@@ -149,7 +149,7 @@ std::vector<Link *> AuroraTopology::find_intra_links(int src_sb, int dst_sb) {
 	return result;
 }
 
-std::vector<std::vector<Link *>> AuroraTopology::find_paths(int src_sb, int dst_sb) {
+std::vector<std::vector<Link *>> FullTopology::find_paths(int src_sb, int dst_sb) {
 	std::vector<std::vector<Link *>> result;
 	if (src_sb == dst_sb) return result;
 	// add the direct paths
@@ -180,7 +180,7 @@ std::vector<std::vector<Link *>> AuroraTopology::find_paths(int src_sb, int dst_
 }
 
 // WIP: need to change the params and codes
-std::vector<std::vector<Link *>> AuroraTopology::find_intra_paths(int src_sb, int dst_sb) {
+std::vector<std::vector<Link *>> FullTopology::find_intra_paths(int src_sb, int dst_sb) {
 	std::vector<std::vector<Link *>> result;
 	if (src_sb == dst_sb) return result;
 	// add the direct paths
@@ -210,7 +210,7 @@ std::vector<std::vector<Link *>> AuroraTopology::find_intra_paths(int src_sb, in
 	}
 }
 
-void AuroraTopology::print_path(std::vector<Link *> path) {
+void FullTopology::print_path(std::vector<Link *> path) {
 	for (Link* link : path) {
 		std::cout << link->name << " => ";
 	}
@@ -218,7 +218,7 @@ void AuroraTopology::print_path(std::vector<Link *> path) {
 }
 
 // find the best routing policy in the DCN level
-SCIP_RETCODE AuroraTopology::find_best_dcn_routing() {
+SCIP_RETCODE FullTopology::find_best_dcn_routing() {
 	int num_sb = NUM_SB_PER_DCN; // get the number of SuperBlocks
 
 	SCIP* scip = nullptr;
@@ -374,7 +374,7 @@ SCIP_RETCODE AuroraTopology::find_best_dcn_routing() {
 
 // TODO: WCMP weight can be calculated, but it is ignored here
 // TODO: reason given in the comments following
-void AuroraTopology::result_analysis() {
+void FullTopology::result_analysis() {
 	std::cout << "The path with 0 traffic is not printed. " << std::endl;
 	for (int src_sb=0; src_sb<NUM_SB_PER_DCN; ++src_sb)
 		for (int dst_sb=0; dst_sb<NUM_SB_PER_DCN; ++dst_sb)

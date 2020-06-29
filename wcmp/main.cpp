@@ -5,7 +5,7 @@
 #include "main.h"
 #include "components/DCN.h"
 #include "topology/dcnonly/DCNOnlyTopology.h"
-#include "topology/aurora/AuroraTopology.h"
+#include "topology/full/FullTopology.h"
 
 #include <iostream>
 
