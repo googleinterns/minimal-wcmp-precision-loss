@@ -8,6 +8,11 @@
 
 #include "main.h"
 
+// Represent each switch in the DCN network
+// Contain switch name with following format:
+// sw_{superblock id}_{middleblock id}_{switch id}
+// Use switch_type to represent the level of the switch:
+// s1, s2, s3
 class Switch {
 
 public:

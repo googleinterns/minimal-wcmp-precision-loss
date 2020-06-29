@@ -22,8 +22,9 @@
 #define NUM_S2_PER_SB (NUM_S2_PER_MB*NUM_MB_PER_SB)
 #define NUM_S1_PER_SB (NUM_S1_PER_MB*NUM_MB_PER_SB)
 
-#define PATH std::vector<Link *>
-
+// The DCN network for the Whole Aurora topology
+// Used for Milestone 2, now as WIP
+// For Milestone 1, please refer to DCNOnlyTopology
 class AuroraTopology: public DCN {
 
 public:

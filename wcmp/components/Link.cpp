@@ -11,3 +11,7 @@ Link::Link(Switch* src, Switch* dst, double cap, int ID) {
 	id = ID;
 	name = "link: "+src->switch_name+"->"+dst->switch_name;
 }
+
+void Link::add_path(Path *p) {
+	related_dcn_paths.push_back(p);
+}

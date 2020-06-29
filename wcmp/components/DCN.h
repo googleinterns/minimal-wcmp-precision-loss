@@ -12,9 +12,14 @@
 #include <scip/scipdefplugins.h>
 #include "Switch.h"
 #include "Link.h"
+#include "Path.h"
+#include "../traffic_trace/Trace.h"
 
-// Define a DCN network with a number of SuperBlocks,
-// each of them has different northbound bandwidth
+// The virtual class for DCN network with a number of SuperBlocks,
+// each of them has different northbound bandwidth.
+//
+// No virtual function included because the function is still under
+// construction and updated very frequently. Will be added later.
 class DCN {
 
 };

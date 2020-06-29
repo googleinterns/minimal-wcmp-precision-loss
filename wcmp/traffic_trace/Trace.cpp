@@ -3,20 +3,74 @@
 //
 
 #include "Trace.h"
+#include <random>
 
 Trace::Trace() = default;
 
-double* Trace::generate_symmetric_matrix(int num_sb) {
-	auto matrix = new double[num_sb*num_sb];
-	for (int i=0; i<num_sb*num_sb; ++i) {
-		matrix[i] = 40;
+std::vector<std::vector<double>> Trace::generate_symmetric_matrix(int num_sb) {
+	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
+			matrix[src_sb][dst_sb] = 10;
+		}
 	}
 	return matrix;
 }
 
-double* Trace::generate_random_matrix(int num_sb) {
-	auto matrix = new double[num_sb*num_sb];
-	// implementation
+std::vector<std::vector<double>> Trace::generate_random_matrix(int num_sb) {
+	// initial random
+	std::random_device rd;
+	std::mt19937 mt(rd());
+	std::uniform_real_distribution<double> dist(0.0, 10.0);
+	// generate matrix
+	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
+			matrix[src_sb][dst_sb] = dist(mt);
+		}
+	}
+	return matrix;
+}
+
+std::vector<std::vector<double>> Trace::generate_sparse_matrix(int num_sb) {
+	// generate matrix
+	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
+			if ((src_sb==0) && (dst_sb==1))
+				matrix[src_sb][dst_sb] = 10.00;
+			else
+				matrix[src_sb][dst_sb] = 0.00;
+		}
+	}
+	return matrix;
+}
+
+std::vector<std::vector<double>> Trace::generate_permutation_matrix(int num_sb) {
+	// generate matrix
+	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
+			if (src_sb+dst_sb==num_sb)
+				matrix[src_sb][dst_sb] = 10.00;
+			else
+				matrix[src_sb][dst_sb] = 0.00;
+		}
+	}
+	return matrix;
+}
+
+std::vector<std::vector<double>> Trace::generate_stride_matrix(int num_sb) {
+	// generate matrix
+	std::vector<std::vector<double>> matrix = std::vector<std::vector<double>>(num_sb, std::vector<double>(num_sb));
+	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
+		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
+			if ((src_sb+1)%num_sb == dst_sb)
+				matrix[src_sb][dst_sb] = 10.00;
+			else
+				matrix[src_sb][dst_sb] = 0.00;
+		}
+	}
 	return matrix;
 }
 
