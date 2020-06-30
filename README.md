@@ -10,4 +10,4 @@
 	
 	traffic_trace/*  
 	
-Note: The aurora class is used for constructing the complete DCN network and achieve milestone 2.
+Note: The full topology class is used for constructing the complete DCN network and achieve milestone 2.
