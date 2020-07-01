@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace traffic {
+
 enum class TrafficPattern {
   kUnknown = 0,
   kSparse = 1,
@@ -18,7 +20,9 @@ enum class TrafficPattern {
   kRandom = 5,
 };
 
-typedef std::unordered_map<int, double> SbTrafficMatrix;
+// key (int): the src and dst SuperBlock
+// value (double): the traffic demand for
+using SbTrafficMatrix = std::unordered_map<int, double>;
 
 // Generate the Trace for DCN network
 // with 5 patterns:
@@ -42,5 +46,5 @@ public:
   SbTrafficMatrix ImportTrafficTrace(std::string input);
 };
 
-
+} // namespace traffic
 #endif //WCMP_TRACE_H

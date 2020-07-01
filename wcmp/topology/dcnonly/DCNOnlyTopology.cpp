@@ -2,6 +2,8 @@
 // Created by wwt on 6/20/20.
 //
 
+
+#include <chrono>
 #include <glog/logging.h>
 #include "DCNOnlyTopology.h"
 
@@ -137,9 +139,9 @@ void DCNOnlyTopology::AddPaths() {
 // TODO: will be added for milestone 2
 DCNOnlyTopology::DCNOnlyTopology() {
 	// initial traffic matrix
-	Trace trace;
+	traffic::Trace trace;
 	traffic_matrix_ = trace.GenerateTrafficMatrix(numSbPerDcn,
-                                                TrafficPattern::kSparse, "test");
+                                                traffic::TrafficPattern::kRandom, "test");
 
 	// add switches
 	AddSwitches();
@@ -330,9 +332,11 @@ SCIP_RETCODE DCNOnlyTopology::FindBestDcnRouting() {
 	}
 	std::cout << "Constraints released" << std::endl;
 
+	auto begin = std::chrono::high_resolution_clock::now();
 	// Solve the problem
 	SCIP_CALL(SCIPsolve(scip));
-	std::cout << "Solved" << std::endl;
+  auto end = std::chrono::high_resolution_clock::now();
+	std::cout << "Solved in " << std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count() << "ns" << std::endl;
 
 	// Get the solutions
 	SCIP_SOL *sol = nullptr;
@@ -344,15 +348,14 @@ SCIP_RETCODE DCNOnlyTopology::FindBestDcnRouting() {
 	for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
 		for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
 			if (src_sb == dst_sb) continue;
-			std::cout << src_sb << "->" << dst_sb << ": ";
+//			std::cout << src_sb << "->" << dst_sb << ": ";
 			for (int p : per_pair_paths_[src_sb][dst_sb]) {
-				std::cout << SCIPgetSolVal(scip, sol,
-				                           x[src_sb][dst_sb][paths_[p].per_pair_id])
-				          << ", ";
+//				std::cout << SCIPgetSolVal(scip, sol,
+//				             x[src_sb][dst_sb][paths_[p].per_pair_id]) << ", ";
 				scip_result_[src_sb][dst_sb].push_back(SCIPgetSolVal(scip, sol,
 				  x[src_sb][dst_sb][paths_[p].per_pair_id]));
 			}
-			std::cout << std::endl;
+//			std::cout << std::endl;
 		}
 
 	SCIP_CALL((SCIPwriteOrigProblem(scip, "MLU.lp", nullptr, FALSE)));

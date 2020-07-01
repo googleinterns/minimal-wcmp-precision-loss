@@ -22,6 +22,7 @@ int main() {
 	}
 
 	// analysis the result
-	network.ResultAnalysis();
+//	network.ResultAnalysis();
+
 	return 0;
 }
