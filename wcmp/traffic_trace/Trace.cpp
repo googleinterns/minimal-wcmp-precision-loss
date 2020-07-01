@@ -7,7 +7,7 @@
 #include "Trace.h"
 
 // set the traffic amount to be 10
-std::unordered_map<int, double> generate_symmetric_matrix(int num_sb) {
+std::unordered_map<int, double> GenerateSymmetricMatrix(int num_sb) {
 	std::unordered_map<int, double> matrix = {};
 	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
 		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
@@ -19,7 +19,7 @@ std::unordered_map<int, double> generate_symmetric_matrix(int num_sb) {
 
 // use real distribution and mt to generate random number instead of rand()
 // for better performance and more uniform distribution
-std::unordered_map<int, double> generate_random_matrix(int num_sb) {
+std::unordered_map<int, double> GenerateRandomMatrix(int num_sb) {
 	// initial random
 	std::random_device rd;
 	std::mt19937 mt(rd());
@@ -35,7 +35,7 @@ std::unordered_map<int, double> generate_random_matrix(int num_sb) {
 }
 
 // Only one element exists in the matrix
-std::unordered_map<int, double> generate_sparse_matrix(int num_sb) {
+std::unordered_map<int, double> GenerateSparseMatrix(int num_sb) {
 	// generate matrix
 	std::unordered_map<int, double> matrix = {};
 	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
@@ -50,7 +50,7 @@ std::unordered_map<int, double> generate_sparse_matrix(int num_sb) {
 }
 
 // permutation: src_sb + dst_sb == num_sb
-std::unordered_map<int, double> generate_permutation_matrix(int num_sb) {
+std::unordered_map<int, double> GeneratePermutationMatrix(int num_sb) {
 	// generate matrix
 	std::unordered_map<int, double> matrix = {};
 	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
@@ -65,7 +65,7 @@ std::unordered_map<int, double> generate_permutation_matrix(int num_sb) {
 }
 
 // each source SuperBlock sends traffic to the next SuperBlock
-std::unordered_map<int, double> generate_stride_matrix(int num_sb) {
+std::unordered_map<int, double> GenerateStrideMatrix(int num_sb) {
 	// generate matrix
 	std::unordered_map<int, double> matrix = {};
 	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
@@ -80,7 +80,7 @@ std::unordered_map<int, double> generate_stride_matrix(int num_sb) {
 }
 
 // the interface to generate the traffic matrix
-std::unordered_map<int, double> Trace::generate_traffic_matrix(int num_sb, TrafficPattern traffic_pattern, std::string output) {
+std::unordered_map<int, double> Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern, std::string output) {
 	// input check
 	if (num_sb <= 1) {
 		LOG(ERROR) << "The number of SuperBlocks cannot be less than 2.";
@@ -90,19 +90,19 @@ std::unordered_map<int, double> Trace::generate_traffic_matrix(int num_sb, Traff
 	std::unordered_map<int, double> matrix = {};
 	switch (traffic_pattern) {
 		case TrafficPattern::sparse:
-			matrix = generate_sparse_matrix(num_sb);
+			matrix = GenerateSparseMatrix(num_sb);
 			break;
 		case TrafficPattern::permutation:
-			matrix = generate_permutation_matrix(num_sb);
+			matrix = GeneratePermutationMatrix(num_sb);
 			break;
 		case TrafficPattern::stride:
-			matrix = generate_stride_matrix(num_sb);
+			matrix = GenerateStrideMatrix(num_sb);
 			break;
 		case TrafficPattern::symmetric:
-			matrix = generate_symmetric_matrix(num_sb);
+			matrix = GenerateSymmetricMatrix(num_sb);
 			break;
 		case TrafficPattern::random:
-			matrix = generate_random_matrix(num_sb);
+			matrix = GenerateRandomMatrix(num_sb);
 			break;
 		case TrafficPattern::unknown:
 			break;

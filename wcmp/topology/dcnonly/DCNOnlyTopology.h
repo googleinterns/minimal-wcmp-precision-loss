@@ -21,7 +21,7 @@ const int numS2PerSb = numS3PerMb*numMbPerSb;
 
 // The DCN network with only the top level, namely, DCN level
 // The initialization of this class will record the paths information as well
-// The result_analysis function is used to print out the information
+// The ResultAnalysis function is used to print out the information
 // The SCIP result is stored in the scip_result
 class DCNOnlyTopology: public dcn::DCN {
 
@@ -46,7 +46,7 @@ private:
 
 	// Input: source superblock, destination superblock
 	// Return: all the direct dcn links between the src and dst
-	std::vector<int> find_links(int src_sb, int dst_sb);
+	std::vector<int> FindLinks(int src_sb, int dst_sb);
 
 	// functions to create the SCIP model
 	SCIP_RETCODE CreateVariableMlu(SCIP* scip, SCIP_VAR* &u);
@@ -68,14 +68,14 @@ public:
 	DCNOnlyTopology();
 
 	// print the path with the link name
-	void print_path(const mainprog::Path &path);
+	void PrintPath(const mainprog::Path &path);
 
 	// Use SCIP to find the best traffic allocation method,
 	// follows the LP model on the document.
-	SCIP_RETCODE find_best_dcn_routing();
+	SCIP_RETCODE FindBestDcnRouting();
 
 	// Print the traffic allocation details
-	void result_analysis();
+	void ResultAnalysis();
 
 };
 

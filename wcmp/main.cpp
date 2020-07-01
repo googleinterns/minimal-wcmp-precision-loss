@@ -16,12 +16,12 @@ int main() {
 	dcnonly::DCNOnlyTopology network;
 
 	// find the best routing policy
-	SCIP_RETCODE retcode = network.find_best_dcn_routing();
+	SCIP_RETCODE retcode = network.FindBestDcnRouting();
 	if (retcode != SCIP_OKAY) {
 		LOG(ERROR) << "The SCIP program is wrong.";
 	}
 
 	// analysis the result
-	network.result_analysis();
+	network.ResultAnalysis();
 	return 0;
 }

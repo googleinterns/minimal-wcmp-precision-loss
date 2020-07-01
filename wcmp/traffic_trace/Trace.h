@@ -32,7 +32,7 @@ public:
 	Trace() = default;;
 
 	// matrix generation function for sparse method
-	std::unordered_map<int, double> generate_traffic_matrix(int num_sb, TrafficPattern traffic_pattern, std::string output="none");
+	std::unordered_map<int, double> GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern, std::string output= "none");
 
 	// import traffic trace
 	std::unordered_map<int, double> ImportTrafficTrace(std::string input);

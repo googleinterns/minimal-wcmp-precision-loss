@@ -81,7 +81,7 @@ void DCNOnlyTopology::AddPaths() {
 				int index = 0;
 				// add the direct paths
 				std::vector<int> direct_paths;
-				direct_paths = this->find_links(src_sb, dst_sb);
+				direct_paths = this->FindLinks(src_sb, dst_sb);
 				for (int link_gid : direct_paths) {
 					mainprog::Path tmp_path = {{link_gid}, links_[link_gid].src_sw_gid, links_[link_gid].dst_sw_gid, index, path_gid};
 					paths_.push_back(tmp_path); // add path to the path list
@@ -95,8 +95,8 @@ void DCNOnlyTopology::AddPaths() {
 					if ((trans_sb != src_sb) && (trans_sb != dst_sb)) {
 						std::vector<int> first_hops;
 						std::vector<int> second_hops;
-						first_hops = this->find_links(src_sb, trans_sb);
-						second_hops = this->find_links(trans_sb, dst_sb);
+						first_hops = this->FindLinks(src_sb, trans_sb);
+						second_hops = this->FindLinks(trans_sb, dst_sb);
 						for (int first_gid : first_hops) {
 							for (int second_gid : second_hops) {
 								mainprog::Path new_path = {{first_gid, second_gid}, links_[first_gid].src_sw_gid, links_[second_gid].dst_sw_gid, index, path_gid};
@@ -120,7 +120,7 @@ void DCNOnlyTopology::AddPaths() {
 DCNOnlyTopology::DCNOnlyTopology() {
 	// initial traffic matrix
 	Trace trace;
-	traffic_matrix_ = trace.generate_traffic_matrix(numSbPerDcn, TrafficPattern::sparse);
+	traffic_matrix_ = trace.GenerateTrafficMatrix(numSbPerDcn, TrafficPattern::sparse);
 
 	// add switches
 	AddSwitches();
@@ -133,7 +133,7 @@ DCNOnlyTopology::DCNOnlyTopology() {
 }
 
 // return the links between two SuperBlocks
-std::vector<int> DCNOnlyTopology::find_links(int src_sb, int dst_sb) {
+std::vector<int> DCNOnlyTopology::FindLinks(int src_sb, int dst_sb) {
 	std::vector<int> result;
 	for (int link_gid : per_pair_links_[src_sb][dst_sb]) {
 		result.push_back(link_gid);
@@ -142,7 +142,7 @@ std::vector<int> DCNOnlyTopology::find_links(int src_sb, int dst_sb) {
 }
 
 // TODO: can be optimized for clearance
-void DCNOnlyTopology::print_path(const mainprog::Path &path) {
+void DCNOnlyTopology::PrintPath(const mainprog::Path &path) {
 	for (int g : path.link_gid_list) {
 		std::cout << links_[g].gid << " => ";
 	}
@@ -262,7 +262,7 @@ SCIP_RETCODE DCNOnlyTopology::CreateConstraintsLinkUtilizationBound(
 
 // find the best routing policy in the DCN level
 // redundant constraints have been removed
-SCIP_RETCODE DCNOnlyTopology::find_best_dcn_routing() {
+SCIP_RETCODE DCNOnlyTopology::FindBestDcnRouting() {
 	SCIP* scip = nullptr;
 	SCIP_CALL(SCIPcreate(&scip)); // create the SCIP environment
 
@@ -340,7 +340,7 @@ SCIP_RETCODE DCNOnlyTopology::find_best_dcn_routing() {
 
 // TODO: WCMP weight can be calculated, but it is ignored here
 // TODO: reason given in the comments following
-void DCNOnlyTopology::result_analysis() {
+void DCNOnlyTopology::ResultAnalysis() {
 	std::cout << "The path with 0 traffic is not printed. " << std::endl;
 	for (int src_sb=0; src_sb < numSbPerDcn; ++src_sb)
 		for (int dst_sb=0; dst_sb < numSbPerDcn; ++dst_sb)
