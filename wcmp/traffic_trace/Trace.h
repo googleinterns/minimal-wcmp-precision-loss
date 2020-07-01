@@ -20,8 +20,8 @@ enum class TrafficPattern {
   kRandom = 5,
 };
 
-// key (int): the src and dst SuperBlock
-// value (double): the traffic demand for
+// key (int): the integer id of a pair of superblocks
+// value (double): the aggregated egress demand of the corresponding superblock pair in Gbps
 using SbTrafficMatrix = std::unordered_map<int, double>;
 
 // Generate the Trace for DCN network
