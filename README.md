@@ -4,8 +4,6 @@
 
 	./*  
 	
-	components/*  
-	
 	topology/dcnonly/*  
 	
 	traffic_trace/*  
