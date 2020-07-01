@@ -6,7 +6,7 @@
 #define WCMP_LINK_H
 
 
-#include "main.h"
+#include "definitions.h"
 #include "Switch.h"
 #include "Path.h"
 
@@ -15,23 +15,23 @@
 // efficient access.
 class Link {
 
-public:
-	Switch *source;
-	Switch *destination;
-	double capacity;
-	std::string name;
-	int id;
-	std::vector<Path *> related_dcn_paths;
+private:
+	Switch* source_;
+	Switch* destination_;
+	double capacity_;
+	std::string name_;
+	int id_;
 
+public:
 	// constructor function
 	// represent one link with direction: pointers to source switch, destination switch
 	// link capacity is the min(u_i, u_j)
 	// link ID is the index in vector dcn_link_list of this link
 	Link(Switch* src, Switch* dst, double cap, int ID);
 
-	// record the related paths' information
-	// namely, the path p contains this link
-	void add_path(Path* p);
+	// get the link source
+	Switch* destination
+	// get the link destination
 
 };
 

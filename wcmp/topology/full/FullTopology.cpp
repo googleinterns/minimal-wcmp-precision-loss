@@ -14,8 +14,8 @@ static double traffic_matrix[25] = {40, 40, 40, 40, 40,
 
 FullTopology::FullTopology() {
 	// initial traffic matrix
-	auto trace = new Trace();
-	traffic_matrix = trace->generate_sparse_matrix(NUM_SB_PER_DCN);
+	Trace trace;
+	traffic_matrix = trace.generate_sparse_matrix(NUM_SB_PER_DCN);
 
 	// add s3 switches
 	for (int i=0; i<NUM_SB_PER_DCN; ++i)

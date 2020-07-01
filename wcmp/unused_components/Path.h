@@ -6,7 +6,7 @@
 #define WCMP_PATH_H
 
 
-#include "../main.h"
+#include "definitions.h"
 //#include "Link.h"
 #include "Switch.h"
 
@@ -19,12 +19,13 @@ class Link;
 // of accelerating calculation in SCIP
 class Path {
 
-public:
-	std::vector<Link *> links;
-	Switch* src_sw;
-	Switch* dst_sw;
-	int index;
+private:
+	std::vector<Link *> links_;
+	Switch* src_sw_;
+	Switch* dst_sw_;
+	int index_;
 
+public:
 	// constructor function with a link vector
 	// used for transition path or direct path
 	// the idx represents the index of this path in dcn_path_list[src_sb][dst_sb]
@@ -36,7 +37,7 @@ public:
 	// used for direct path
 	// the idx represents the index of this path in dcn_path_list[src_sb][dst_sb]
 	//
-	// the idx can be used to accelerate the calculation in SCIP without iterate the path list
+	// the idx can be used to accelerate the model construction in SCIP without iterate the path list
 	Path(int idx, Link * link);
 
 };

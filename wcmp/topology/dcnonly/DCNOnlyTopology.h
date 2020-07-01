@@ -6,32 +6,60 @@
 #define WCMP_DCNONLYTOPOLOGY_H
 
 
-#include <components/DCN.h>
+#include <unordered_map>
+#include "topology/DCN.h"
 
-#define NUM_SB_PER_DCN 3
-#define NUM_MB_PER_SB 2
-#define NUM_S1_PER_MB 64 // 64
-#define NUM_S2_PER_MB 8 // 8
-#define NUM_S3_PER_MB 8 // 8
-#define NUM_LINK_PER_SB NUM_SB_PER_DCN
+namespace dcnonly {
 
-#define NUM_S3_PER_SB (NUM_S3_PER_MB*NUM_MB_PER_SB)
+const int numSbPerDcn = 3;
+const int numMbPerSb = 1;
+const int numS1PerMb = 8; // 64
+const int numS2PerMb = 1; // 8
+const int numS3PerMb = 1; // 8
+
+const int numS2PerSb = numS3PerMb*numMbPerSb;
 
 // The DCN network with only the top level, namely, DCN level
 // The initialization of this class will record the paths information as well
 // The result_analysis function is used to print out the information
 // The SCIP result is stored in the scip_result
-class DCNOnlyTopology: public DCN {
+class DCNOnlyTopology: public dcn::DCN {
+
+private:
+	std::unordered_map<int, double> traffic_matrix_;
+	std::vector<mainprog::Switch> switches_;
+	std::vector<mainprog::Link> links_;
+	std::vector<mainprog::Path> paths_;
+
+	std::vector<std::vector<int>> per_sb_switches_;
+	std::vector<std::vector<std::vector<int>>> per_pair_links_;
+	std::vector<std::vector<std::vector<int>>> per_pair_paths_;
+
+	std::unordered_map<int, std::vector<int>> per_link_paths_;
+
+	std::vector<std::vector<std::vector<double>>> scip_result_;
+
+	// functions to create the topology
+	void AddSwitches();
+	void AddLinks();
+	void AddPaths();
+
+	// Input: source superblock, destination superblock
+	// Return: all the direct dcn links between the src and dst
+	std::vector<int> find_links(int src_sb, int dst_sb);
+
+	// functions to create the SCIP model
+	SCIP_RETCODE CreateVariableMlu(SCIP* scip, SCIP_VAR* &u);
+	SCIP_RETCODE CreateVariableWeight(SCIP* scip, std::vector<std::vector<std::vector<SCIP_VAR*>>> &x);
+	SCIP_RETCODE CreateConstraintsEqualToOne(SCIP* scip,
+											 std::vector<SCIP_CONS*> &equal_cons,
+											 std::vector<std::vector<std::vector<SCIP_VAR*>>> &x);
+	SCIP_RETCODE CreateConstraintsLinkUtilizationBound(SCIP* scip,
+	                                                   std::vector<SCIP_CONS*> &equal_cons,
+	                                                   SCIP_VAR* &u,
+	                                                   std::vector<std::vector<std::vector<SCIP_VAR*>>> &x);
 
 public:
-	std::vector<std::vector<double>> traffic_matrix;
-	std::vector<Switch *> s3_list;
-	std::vector<Switch *> s2_list;
-	std::vector<Switch *> s1_list;
-	std::vector<Link *> dcn_link_list;
-	std::vector<std::vector<std::vector<Path *>>> dcn_path_list;
-	std::vector<std::vector<std::vector<double>>> scip_result;
-
 	// constructor function
 	// initialize the network topology and record the switches and links
 	// generate all the paths for the dcn connection
@@ -39,12 +67,8 @@ public:
 	// We will never find path or find links in the rest of the code
 	DCNOnlyTopology();
 
-	// Input: source superblock, destination superblock
-	// Return: all the direct dcn links between the src and dst
-	std::vector<Link *> find_links(int src_sb, int dst_sb);
-
 	// print the path with the link name
-	static void print_path(const std::vector<Link *> &path);
+	void print_path(const mainprog::Path &path);
 
 	// Use SCIP to find the best traffic allocation method,
 	// follows the LP model on the document.
@@ -55,5 +79,5 @@ public:
 
 };
 
-
+} // namespace dcnonly
 #endif //WCMP_DCNONLYTOPOLOGY_H

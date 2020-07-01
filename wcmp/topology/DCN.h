@@ -10,10 +10,10 @@
 #include <vector>
 #include <scip/scip.h>
 #include <scip/scipdefplugins.h>
-#include "Switch.h"
-#include "Link.h"
-#include "Path.h"
-#include "../traffic_trace/Trace.h"
+#include "traffic_trace/Trace.h"
+#include "definitions.h"
+
+namespace dcn {
 
 // The virtual class for DCN network with a number of SuperBlocks,
 // each of them has different northbound bandwidth.
@@ -24,5 +24,5 @@ class DCN {
 
 };
 
-
+} // namespace
 #endif //WCMP_DCN_H

@@ -6,7 +6,17 @@
 #define WCMP_TRACE_H
 
 
-#include "../main.h"
+#include <unordered_map>
+#include <vector>
+
+enum class TrafficPattern {
+	unknown = 0,
+	sparse = 1,
+	permutation = 2,
+	stride = 3,
+	symmetric = 4,
+	random = 5,
+};
 
 // Generate the Trace for DCN network
 // with 5 patterns:
@@ -19,22 +29,13 @@ class Trace {
 
 public:
 	// constructor function
-	Trace();
+	Trace() = default;;
 
 	// matrix generation function for sparse method
-	std::vector<std::vector<double>> generate_sparse_matrix(int num_sb);
+	std::unordered_map<int, double> generate_traffic_matrix(int num_sb, TrafficPattern traffic_pattern, std::string output="none");
 
-	// matrix generation function for permutation method
-	std::vector<std::vector<double>> generate_permutation_matrix(int num_sb);
-
-	// matrix generation function for stride method
-	std::vector<std::vector<double>> generate_stride_matrix(int num_sb);
-
-	// matrix generation function for symmetric method
-	std::vector<std::vector<double>> generate_symmetric_matrix(int num_sb);
-
-	// matrix generation function for random method
-	std::vector<std::vector<double>> generate_random_matrix(int num_sb);
+	// import traffic trace
+	std::unordered_map<int, double> ImportTrafficTrace(std::string input);
 };
 
 

@@ -6,7 +6,7 @@
 #define WCMP_FULLTOPOLOGY_H
 
 
-#include <components/DCN.h>
+#include <topology/DCN.h>
 
 #define NUM_SB_PER_DCN 5
 #define NUM_MB_PER_SB 1
