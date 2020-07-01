@@ -4,7 +4,11 @@
 
 #include <random>
 #include <glog/logging.h>
+#include <iostream>
+#include <fstream>
+#include <string>
 #include "Trace.h"
+#include "trace.pb.h"
 
 // set the traffic amount to be 10
 std::unordered_map<int, double> GenerateSymmetricMatrix(int num_sb) {
@@ -109,8 +113,16 @@ std::unordered_map<int, double> Trace::GenerateTrafficMatrix(int num_sb, Traffic
 	}
 	// export the result if the output field is not "none"
 	if (output != "none") {
-		// need implementation with protobuf
-		// added soon
+//		// test code
+//		// set the output file
+//		const char* filename = output.c_str();
+//		std::fstream fd(filename, std::ios::out | std::ios::trunc | std::ios::binary);
+//		// write data into proto
+//		trace::Matrix mx;
+//		auto map = mx.matrix();
+//		map[0]=10.0;
+//		mx.SerializeToOstream(&fd);
+//		google::protobuf::ShutdownProtobufLibrary();
 	}
 	return matrix;
 }

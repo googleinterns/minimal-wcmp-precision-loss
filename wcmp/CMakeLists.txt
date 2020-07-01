@@ -8,10 +8,13 @@ include_directories(.)
 
 find_package(SCIP REQUIRED)
 find_package (glog REQUIRED)
+find_package (Protobuf REQUIRED)
 
 add_executable(wcmp
 		traffic_trace/Trace.cpp
 		traffic_trace/Trace.h
+		traffic_trace/trace.pb.cc
+		traffic_trace/trace.pb.h
 #		components/Link.cpp
 #		components/Link.h
 #		components/Path.cpp
@@ -26,4 +29,4 @@ add_executable(wcmp
 		definitions.h
 		main.cpp)
 
-target_link_libraries(wcmp libscip glog::glog)
+target_link_libraries(wcmp libscip glog::glog proto)

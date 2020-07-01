@@ -21,10 +21,10 @@ const int tableSize = 16384;
 const int maxGroupSize = 256;
 
 enum class SwitchType {
+	unknown = 0,
 	s1 = 1,
 	s2 = 2,
 	s3 = 3,
-	unknown = 0,
 };
 
 struct Switch {
