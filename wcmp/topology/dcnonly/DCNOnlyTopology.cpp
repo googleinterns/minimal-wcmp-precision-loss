@@ -139,7 +139,7 @@ DCNOnlyTopology::DCNOnlyTopology() {
 	// initial traffic matrix
 	Trace trace;
 	traffic_matrix_ = trace.GenerateTrafficMatrix(numSbPerDcn,
-	  TrafficPattern::sparse);
+                                                TrafficPattern::kSparse, "test");
 
 	// add switches
 	AddSwitches();

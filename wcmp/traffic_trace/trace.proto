@@ -3,5 +3,5 @@ syntax = "proto3";
 package trace;
 
 message Matrix {
-  map<int32, double> matrix = 1;
+  map<int32, double> traffic_map = 1;
 }

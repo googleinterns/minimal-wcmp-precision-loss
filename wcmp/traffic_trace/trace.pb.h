@@ -61,33 +61,33 @@ namespace trace {
 class Matrix;
 class MatrixDefaultTypeInternal;
 extern MatrixDefaultTypeInternal _Matrix_default_instance_;
-class Matrix_MatrixEntry_DoNotUse;
-class Matrix_MatrixEntry_DoNotUseDefaultTypeInternal;
-extern Matrix_MatrixEntry_DoNotUseDefaultTypeInternal _Matrix_MatrixEntry_DoNotUse_default_instance_;
+class Matrix_TrafficMapEntry_DoNotUse;
+class Matrix_TrafficMapEntry_DoNotUseDefaultTypeInternal;
+extern Matrix_TrafficMapEntry_DoNotUseDefaultTypeInternal _Matrix_TrafficMapEntry_DoNotUse_default_instance_;
 }  // namespace trace
 PROTOBUF_NAMESPACE_OPEN
 template<> ::trace::Matrix* Arena::CreateMaybeMessage<::trace::Matrix>(Arena*);
-template<> ::trace::Matrix_MatrixEntry_DoNotUse* Arena::CreateMaybeMessage<::trace::Matrix_MatrixEntry_DoNotUse>(Arena*);
+template<> ::trace::Matrix_TrafficMapEntry_DoNotUse* Arena::CreateMaybeMessage<::trace::Matrix_TrafficMapEntry_DoNotUse>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace trace {
 
 // ===================================================================
 
-class Matrix_MatrixEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_MatrixEntry_DoNotUse, 
+class Matrix_TrafficMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_TrafficMapEntry_DoNotUse, 
     ::PROTOBUF_NAMESPACE_ID::int32, double,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
     0 > {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_MatrixEntry_DoNotUse, 
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_TrafficMapEntry_DoNotUse, 
     ::PROTOBUF_NAMESPACE_ID::int32, double,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
     0 > SuperType;
-  Matrix_MatrixEntry_DoNotUse();
-  explicit Matrix_MatrixEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  void MergeFrom(const Matrix_MatrixEntry_DoNotUse& other);
-  static const Matrix_MatrixEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const Matrix_MatrixEntry_DoNotUse*>(&_Matrix_MatrixEntry_DoNotUse_default_instance_); }
+  Matrix_TrafficMapEntry_DoNotUse();
+  explicit Matrix_TrafficMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  void MergeFrom(const Matrix_TrafficMapEntry_DoNotUse& other);
+  static const Matrix_TrafficMapEntry_DoNotUse* internal_default_instance() { return reinterpret_cast<const Matrix_TrafficMapEntry_DoNotUse*>(&_Matrix_TrafficMapEntry_DoNotUse_default_instance_); }
   static bool ValidateKey(void*) { return true; }
   static bool ValidateValue(void*) { return true; }
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& other) final;
@@ -217,24 +217,24 @@ class Matrix PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kMatrixFieldNumber = 1,
+    kTrafficMapFieldNumber = 1,
   };
-  // map<int32, double> matrix = 1;
-  int matrix_size() const;
+  // map<int32, double> traffic_map = 1;
+  int traffic_map_size() const;
   private:
-  int _internal_matrix_size() const;
+  int _internal_traffic_map_size() const;
   public:
-  void clear_matrix();
+  void clear_traffic_map();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
-      _internal_matrix() const;
+      _internal_traffic_map() const;
   ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
-      _internal_mutable_matrix();
+      _internal_mutable_traffic_map();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
-      matrix() const;
+      traffic_map() const;
   ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
-      mutable_matrix();
+      mutable_traffic_map();
 
   // @@protoc_insertion_point(class_scope:trace.Matrix)
  private:
@@ -244,11 +244,11 @@ class Matrix PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      Matrix_MatrixEntry_DoNotUse,
+      Matrix_TrafficMapEntry_DoNotUse,
       ::PROTOBUF_NAMESPACE_ID::int32, double,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
-      0 > matrix_;
+      0 > traffic_map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_trace_2eproto;
 };
@@ -265,33 +265,33 @@ class Matrix PROTOBUF_FINAL :
 
 // Matrix
 
-// map<int32, double> matrix = 1;
-inline int Matrix::_internal_matrix_size() const {
-  return matrix_.size();
+// map<int32, double> traffic_map = 1;
+inline int Matrix::_internal_traffic_map_size() const {
+  return traffic_map_.size();
 }
-inline int Matrix::matrix_size() const {
-  return _internal_matrix_size();
+inline int Matrix::traffic_map_size() const {
+  return _internal_traffic_map_size();
 }
-inline void Matrix::clear_matrix() {
-  matrix_.Clear();
-}
-inline const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
-Matrix::_internal_matrix() const {
-  return matrix_.GetMap();
+inline void Matrix::clear_traffic_map() {
+  traffic_map_.Clear();
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
-Matrix::matrix() const {
-  // @@protoc_insertion_point(field_map:trace.Matrix.matrix)
-  return _internal_matrix();
+Matrix::_internal_traffic_map() const {
+  return traffic_map_.GetMap();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
+Matrix::traffic_map() const {
+  // @@protoc_insertion_point(field_map:trace.Matrix.traffic_map)
+  return _internal_traffic_map();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
-Matrix::_internal_mutable_matrix() {
-  return matrix_.MutableMap();
+Matrix::_internal_mutable_traffic_map() {
+  return traffic_map_.MutableMap();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
-Matrix::mutable_matrix() {
-  // @@protoc_insertion_point(field_mutable_map:trace.Matrix.matrix)
-  return _internal_mutable_matrix();
+Matrix::mutable_traffic_map() {
+  // @@protoc_insertion_point(field_mutable_map:trace.Matrix.traffic_map)
+  return _internal_mutable_traffic_map();
 }
 
 #ifdef __GNUC__
