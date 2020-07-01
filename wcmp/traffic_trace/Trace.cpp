@@ -116,17 +116,18 @@ Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
 	}
 	// export the result if the output field is not "none"
 	if (output != "none") {
-//		// test code
-//		// set the output file
-//		const char *filename = output.c_str();
-//		std::fstream fd(filename,
-//		                std::ios::out | std::ios::trunc | std::ios::binary);
-//		// write data into proto
-//		auto mx = ;
-//		mx.;
-//		mx.SerializeToOstream(&fd);
-//		google::protobuf::ShutdownProtobufLibrary();
-//		std::cout << "output successfully." << std::endl;
+		// test code
+		// set the output file
+		const char *filename = output.c_str();
+		std::fstream fd(filename,
+		                std::ios::out | std::ios::trunc | std::ios::binary);
+		// write data into proto
+		auto mx = trace::Matrix();
+		auto map = mx.mutable_traffic_map();
+		map->insert({0,10});
+		mx.SerializeToOstream(&fd);
+		google::protobuf::ShutdownProtobufLibrary();
+		std::cout << "output successfully." << std::endl;
 	}
 	return matrix;
 }
