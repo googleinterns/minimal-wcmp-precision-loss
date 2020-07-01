@@ -8,14 +8,14 @@
 #include <fstream>
 #include <string>
 #include "Trace.h"
-#include "trace.pb.h"
+//#include "trace.pb.h"
 
 // set the traffic amount to be 10
 std::unordered_map<int, double> GenerateSymmetricMatrix(int num_sb) {
 	std::unordered_map<int, double> matrix = {};
-	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
-		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
-			matrix[src_sb*num_sb+dst_sb] = 10;
+	for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
+		for (int dst_sb = 0; dst_sb < num_sb; ++dst_sb) {
+			matrix[src_sb * num_sb + dst_sb] = 10;
 		}
 	}
 	return matrix;
@@ -30,9 +30,9 @@ std::unordered_map<int, double> GenerateRandomMatrix(int num_sb) {
 	std::uniform_real_distribution<double> dist(0.0, 10.0);
 	// generate matrix
 	std::unordered_map<int, double> matrix = {};
-	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
-		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
-			matrix[src_sb*num_sb+dst_sb] = dist(mt);
+	for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
+		for (int dst_sb = 0; dst_sb < num_sb; ++dst_sb) {
+			matrix[src_sb * num_sb + dst_sb] = dist(mt);
 		}
 	}
 	return matrix;
@@ -42,12 +42,12 @@ std::unordered_map<int, double> GenerateRandomMatrix(int num_sb) {
 std::unordered_map<int, double> GenerateSparseMatrix(int num_sb) {
 	// generate matrix
 	std::unordered_map<int, double> matrix = {};
-	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
-		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
-			if ((src_sb==0) && (dst_sb==1))
-				matrix[src_sb*num_sb+dst_sb] = 10.00;
+	for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
+		for (int dst_sb = 0; dst_sb < num_sb; ++dst_sb) {
+			if ((src_sb == 0) && (dst_sb == 1))
+				matrix[src_sb * num_sb + dst_sb] = 10.00;
 			else
-				matrix[src_sb*num_sb+dst_sb] = 0.00;
+				matrix[src_sb * num_sb + dst_sb] = 0.00;
 		}
 	}
 	return matrix;
@@ -57,12 +57,12 @@ std::unordered_map<int, double> GenerateSparseMatrix(int num_sb) {
 std::unordered_map<int, double> GeneratePermutationMatrix(int num_sb) {
 	// generate matrix
 	std::unordered_map<int, double> matrix = {};
-	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
-		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
-			if (src_sb+dst_sb==num_sb)
-				matrix[src_sb*num_sb+dst_sb] = 10.00;
+	for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
+		for (int dst_sb = 0; dst_sb < num_sb; ++dst_sb) {
+			if (src_sb + dst_sb == num_sb)
+				matrix[src_sb * num_sb + dst_sb] = 10.00;
 			else
-				matrix[src_sb*num_sb+dst_sb] = 0.00;
+				matrix[src_sb * num_sb + dst_sb] = 0.00;
 		}
 	}
 	return matrix;
@@ -72,19 +72,21 @@ std::unordered_map<int, double> GeneratePermutationMatrix(int num_sb) {
 std::unordered_map<int, double> GenerateStrideMatrix(int num_sb) {
 	// generate matrix
 	std::unordered_map<int, double> matrix = {};
-	for (int src_sb=0; src_sb<num_sb; ++src_sb) {
-		for (int dst_sb=0; dst_sb<num_sb; ++dst_sb) {
-			if ((src_sb+1)%num_sb == dst_sb)
-				matrix[src_sb*num_sb+dst_sb] = 10.00;
+	for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
+		for (int dst_sb = 0; dst_sb < num_sb; ++dst_sb) {
+			if ((src_sb + 1) % num_sb == dst_sb)
+				matrix[src_sb * num_sb + dst_sb] = 10.00;
 			else
-				matrix[src_sb*num_sb+dst_sb] = 0.00;
+				matrix[src_sb * num_sb + dst_sb] = 0.00;
 		}
 	}
 	return matrix;
 }
 
 // the interface to generate the traffic matrix
-std::unordered_map<int, double> Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern, std::string output) {
+std::unordered_map<int, double>
+Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
+                             std::string output) {
 	// input check
 	if (num_sb <= 1) {
 		LOG(ERROR) << "The number of SuperBlocks cannot be less than 2.";
@@ -115,12 +117,13 @@ std::unordered_map<int, double> Trace::GenerateTrafficMatrix(int num_sb, Traffic
 	if (output != "none") {
 //		// test code
 //		// set the output file
-//		const char* filename = output.c_str();
-//		std::fstream fd(filename, std::ios::out | std::ios::trunc | std::ios::binary);
+//		const char *filename = output.c_str();
+//		std::fstream fd(filename,
+//		                std::ios::out | std::ios::trunc | std::ios::binary);
 //		// write data into proto
 //		trace::Matrix mx;
 //		auto map = mx.matrix();
-//		map[0]=10.0;
+//		map[0] = 10.0;
 //		mx.SerializeToOstream(&fd);
 //		google::protobuf::ShutdownProtobufLibrary();
 	}

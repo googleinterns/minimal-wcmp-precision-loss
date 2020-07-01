@@ -29,4 +29,4 @@ add_executable(wcmp
 		definitions.h
 		main.cpp)
 
-target_link_libraries(wcmp libscip glog::glog proto)
+target_link_libraries(wcmp libscip glog::glog ${PROTOBUF_LIBRARY})

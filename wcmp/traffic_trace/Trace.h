@@ -10,12 +10,12 @@
 #include <vector>
 
 enum class TrafficPattern {
-	unknown = 0,
-	sparse = 1,
-	permutation = 2,
-	stride = 3,
-	symmetric = 4,
-	random = 5,
+  unknown = 0,
+  sparse = 1,
+  permutation = 2,
+  stride = 3,
+  symmetric = 4,
+  random = 5,
 };
 
 // Generate the Trace for DCN network
@@ -28,14 +28,16 @@ enum class TrafficPattern {
 class Trace {
 
 public:
-	// constructor function
-	Trace() = default;;
+  // constructor function
+  Trace() = default;;
 
-	// matrix generation function for sparse method
-	std::unordered_map<int, double> GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern, std::string output= "none");
+  // matrix generation function for sparse method
+  std::unordered_map<int, double>
+  GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
+                        std::string output = "none");
 
-	// import traffic trace
-	std::unordered_map<int, double> ImportTrafficTrace(std::string input);
+  // import traffic trace
+  std::unordered_map<int, double> ImportTrafficTrace(std::string input);
 };
 
 

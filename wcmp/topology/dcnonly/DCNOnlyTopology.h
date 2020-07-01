@@ -17,65 +17,71 @@ const int numS1PerMb = 8; // 64
 const int numS2PerMb = 1; // 8
 const int numS3PerMb = 1; // 8
 
-const int numS2PerSb = numS3PerMb*numMbPerSb;
+const int numS2PerSb = numS3PerMb * numMbPerSb;
 
 // The DCN network with only the top level, namely, DCN level
 // The initialization of this class will record the paths information as well
 // The ResultAnalysis function is used to print out the information
 // The SCIP result is stored in the scip_result
-class DCNOnlyTopology: public dcn::DCN {
+class DCNOnlyTopology : public dcn::DCN {
 
 private:
-	std::unordered_map<int, double> traffic_matrix_;
-	std::vector<mainprog::Switch> switches_;
-	std::vector<mainprog::Link> links_;
-	std::vector<mainprog::Path> paths_;
+  std::unordered_map<int, double> traffic_matrix_;
+  std::vector<mainprog::Switch> switches_;
+  std::vector<mainprog::Link> links_;
+  std::vector<mainprog::Path> paths_;
 
-	std::vector<std::vector<int>> per_sb_switches_;
-	std::vector<std::vector<std::vector<int>>> per_pair_links_;
-	std::vector<std::vector<std::vector<int>>> per_pair_paths_;
+  std::vector<std::vector<int>> per_sb_switches_;
+  std::vector<std::vector<std::vector<int>>> per_pair_links_;
+  std::vector<std::vector<std::vector<int>>> per_pair_paths_;
 
-	std::unordered_map<int, std::vector<int>> per_link_paths_;
+  std::unordered_map<int, std::vector<int>> per_link_paths_;
 
-	std::vector<std::vector<std::vector<double>>> scip_result_;
+  std::vector<std::vector<std::vector<double>>> scip_result_;
 
-	// functions to create the topology
-	void AddSwitches();
-	void AddLinks();
-	void AddPaths();
+  // functions to create the topology
+  void AddSwitches();
 
-	// Input: source superblock, destination superblock
-	// Return: all the direct dcn links between the src and dst
-	std::vector<int> FindLinks(int src_sb, int dst_sb);
+  void AddLinks();
 
-	// functions to create the SCIP model
-	SCIP_RETCODE CreateVariableMlu(SCIP* scip, SCIP_VAR* &u);
-	SCIP_RETCODE CreateVariableWeight(SCIP* scip, std::vector<std::vector<std::vector<SCIP_VAR*>>> &x);
-	SCIP_RETCODE CreateConstraintsEqualToOne(SCIP* scip,
-											 std::vector<SCIP_CONS*> &equal_cons,
-											 std::vector<std::vector<std::vector<SCIP_VAR*>>> &x);
-	SCIP_RETCODE CreateConstraintsLinkUtilizationBound(SCIP* scip,
-	                                                   std::vector<SCIP_CONS*> &equal_cons,
-	                                                   SCIP_VAR* &u,
-	                                                   std::vector<std::vector<std::vector<SCIP_VAR*>>> &x);
+  void AddPaths();
+
+  // Input: source superblock, destination superblock
+  // Return: all the direct dcn links between the src and dst
+  std::vector<int> FindLinks(int src_sb, int dst_sb);
+
+  // functions to create the SCIP model
+  SCIP_RETCODE CreateVariableMlu(SCIP *scip, SCIP_VAR *&u);
+
+  SCIP_RETCODE CreateVariableWeight(SCIP *scip,
+                                    std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
+
+  SCIP_RETCODE CreateConstraintsEqualToOne(SCIP *scip,
+                                           std::vector<SCIP_CONS *> &equal_cons,
+                                           std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
+
+  SCIP_RETCODE CreateConstraintsLinkUtilizationBound(SCIP *scip,
+                                                     std::vector<SCIP_CONS *> &equal_cons,
+                                                     SCIP_VAR *&u,
+                                                     std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
 
 public:
-	// constructor function
-	// initialize the network topology and record the switches and links
-	// generate all the paths for the dcn connection
-	// and record path in both dcn_path_list and Link objects
-	// We will never find path or find links in the rest of the code
-	DCNOnlyTopology();
+  // constructor function
+  // initialize the network topology and record the switches and links
+  // generate all the paths for the dcn connection
+  // and record path in both dcn_path_list and Link objects
+  // We will never find path or find links in the rest of the code
+  DCNOnlyTopology();
 
-	// print the path with the link name
-	void PrintPath(const mainprog::Path &path);
+  // print the path with the link name
+  void PrintPath(const mainprog::Path &path);
 
-	// Use SCIP to find the best traffic allocation method,
-	// follows the LP model on the document.
-	SCIP_RETCODE FindBestDcnRouting();
+  // Use SCIP to find the best traffic allocation method,
+  // follows the LP model on the document.
+  SCIP_RETCODE FindBestDcnRouting();
 
-	// Print the traffic allocation details
-	void ResultAnalysis();
+  // Print the traffic allocation details
+  void ResultAnalysis();
 
 };
 
