@@ -13,7 +13,7 @@ int main() {
 	google::InitGoogleLogging("scip");
 
 	// initialize the DCN network
-	dcnonly::DCNOnlyTopology network;
+	wcmp::topo::dcnonly::DCNOnlyTopology network;
 
 	// find the best routing policy
 	SCIP_RETCODE retcode = network.FindBestDcnRouting();

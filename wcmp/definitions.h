@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <memory>
 
-namespace mainprog {
+namespace wcmp {
 
 const int tableSize = 16384;
 const int maxGroupSize = 256;
@@ -50,5 +50,5 @@ struct Path {
   const int gid; // global id
 };
 
-} // namespace mainprog
+} // namespace wcmp
 #endif //WCMP_DEFINITIONS_H

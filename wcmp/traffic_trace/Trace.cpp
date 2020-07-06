@@ -11,6 +11,7 @@
 #include "trace.pb.h"
 //#include "trace.pb.h"
 
+namespace wcmp {
 namespace traffic {
 
 // set the traffic amount to be 10
@@ -140,3 +141,4 @@ SbTrafficMatrix Trace::ImportTrafficTrace(std::string input) {
 }
 
 } // namespace traffic
+} // namespace wcmp

@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include "topology/DCN.h"
 
+namespace wcmp {
+namespace topo {
 namespace dcnonly {
 
 const int numSbPerDcn = 3;
@@ -29,9 +31,9 @@ class DCNOnlyTopology : public dcn::DCN {
 
 private:
   std::unordered_map<int, double> traffic_matrix_;
-  std::vector<mainprog::Switch> switches_;
-  std::vector<mainprog::Link> links_;
-  std::vector<mainprog::Path> paths_;
+  std::vector<Switch> switches_;
+  std::vector<Link> links_;
+  std::vector<Path> paths_;
 
   std::vector<std::vector<int>> per_sb_switches_;
   std::vector<std::vector<std::vector<int>>> per_pair_links_;
@@ -76,7 +78,7 @@ public:
   DCNOnlyTopology();
 
   // print the path with the link name
-  void PrintPath(const mainprog::Path &path);
+  void PrintPath(const Path &path);
 
   // Use SCIP to find the best traffic allocation method,
   // follows the LP model on the document.
@@ -88,4 +90,6 @@ public:
 };
 
 } // namespace dcnonly
+} // namespace topo
+} // namespace wcmp
 #endif //WCMP_DCNONLYTOPOLOGY_H

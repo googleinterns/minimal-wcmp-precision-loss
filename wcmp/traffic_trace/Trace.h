@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 
+namespace wcmp {
 namespace traffic {
 
 enum class TrafficPattern {
@@ -47,4 +48,5 @@ public:
 };
 
 } // namespace traffic
+} // namespace wcmp
 #endif //WCMP_TRACE_H
