@@ -176,7 +176,7 @@ SCIP_RETCODE DCNOnlyTopology::CreateVariableMlu(SCIP *scip, SCIP_VAR *&u) {
 	                             &u, // variable
 	                             "MLU", // name
 	                             0.0, // lower bound
-	                             1.0, // upper bound
+	                             infinity, // upper bound
 	                             1.0, // objective
 	                             SCIP_VARTYPE_CONTINUOUS)); // variable type
 	SCIP_CALL(SCIPaddVar(scip, u));  //Adding the variable
@@ -280,7 +280,7 @@ SCIP_RETCODE DCNOnlyTopology::CreateConstraintsLinkUtilizationBound(
 		                                    scip_vars, // array of pointers to various variables
 		                                    scip_values, // array of values of the coefficients of corresponding variables
 		                                    0, // LHS of the constraint
-		                                    1)); // RHS of the constraint
+		                                    infinity)); // RHS of the constraint
 		SCIP_CALL(SCIPaddCons(scip, link_cons[i]));
 	}
 	return SCIP_OKAY;

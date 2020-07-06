@@ -13,11 +13,13 @@ namespace dcnonly {
 
 const int numSbPerDcn = 3;
 const int numMbPerSb = 1;
-const int numS1PerMb = 8; // 64
-const int numS2PerMb = 1; // 8
-const int numS3PerMb = 1; // 8
+const int numS1PerMb = 64; // 64
+const int numS2PerMb = 8; // 8
+const int numS3PerMb = 8; // 8
 
 const int numS2PerSb = numS3PerMb * numMbPerSb;
+
+const double infinity = 1e+20;
 
 // The DCN network with only the top level, namely, DCN level
 // The initialization of this class will record the paths information as well
