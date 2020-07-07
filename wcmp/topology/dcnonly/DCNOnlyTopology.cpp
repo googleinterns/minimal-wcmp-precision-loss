@@ -382,12 +382,14 @@ SCIP_RETCODE DCNOnlyTopology::FindBestDcnRouting() {
 // TODO: WCMP weight can be calculated, but it is ignored here
 // TODO: reason given in the comments following
 void DCNOnlyTopology::ResultAnalysis() {
+  // traffic amount of each link
+  std::vector<double> links_load = std::vector<double>(links_.size());
   std::cout << "The path with 0 traffic is not printed. " << std::endl;
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
       if (src_sb != dst_sb) {
-        // print the traffic amount for each link
         for (int p : per_pair_paths_[src_sb][dst_sb]) {
+          // print the traffic amount for each link
           double traffic_amount =
             traffic_matrix_[src_sb * numSbPerDcn + dst_sb] *
             scip_result_[src_sb][dst_sb][paths_[p].per_pair_id];
@@ -398,12 +400,79 @@ void DCNOnlyTopology::ResultAnalysis() {
                       << links_[paths_[p].link_gid_list.front()].gid
                       << std::endl;
           }
+          // add the traffic to the links' load
+          if (paths_[p].link_gid_list.size() == 1) {
+            int first_hop = links_[paths_[p].link_gid_list.front()].gid;
+            links_load[first_hop] += traffic_amount;
+          }
+          else if (paths_[p].link_gid_list.size() == 2) {
+            int first_hop = links_[paths_[p].link_gid_list.front()].gid;
+            int second_hop = links_[paths_[p].link_gid_list.back()].gid;
+            links_load[first_hop] += traffic_amount;
+            links_load[second_hop] += traffic_amount;
+          }
         }
-        // print the WCMP group weight for each switch
-        // some doubts remaining, I still hold the problem about
-        // how to divide the groups, I will
-        // make a slides to show my concern on Wednesday's meeting
       }
+  // print the link utilization
+  for (int l=0; l < links_.size(); ++l) {
+    std::cout << "Link " << l << ": "
+              << links_load[l]/links_[l].capacity
+              << std::endl;
+  }
+  // print the WCMP group weight at source s3 -> destination SB level
+  std::unordered_map<int, std::vector<std::pair<int, double>>> assignment;
+  std::unordered_map<int, std::vector<std::pair<int, double>>>::iterator it;
+  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
+    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
+      if (src_sb != dst_sb) {
+        for (int p : per_pair_paths_[src_sb][dst_sb]) {
+          int src_sw = paths_[p].src_sw_gid;
+          int key = src_sw*numSbPerDcn + dst_sb;
+          int link_gid = paths_[p].link_gid_list.front();
+          double traffic_amount =
+            traffic_matrix_[src_sb * numSbPerDcn + dst_sb] *
+            scip_result_[src_sb][dst_sb][paths_[p].per_pair_id];
+          // add the traffic amount to the group
+          it = assignment.find(key);
+          if (it == assignment.end()) { // new key
+            std::vector<std::pair<int, double>> new_vec;
+            new_vec.emplace_back(std::make_pair(link_gid, traffic_amount));
+            assignment[key] = new_vec;
+          }
+          else { // existing key
+            assignment[key].emplace_back(std::make_pair(link_gid, traffic_amount));
+          }
+        }
+      }
+
+  // print the WCMP group that serves the original traffic from its own
+  for (it=assignment.begin(); it!=assignment.end(); ++it) {
+    // set group vector
+    std::unordered_map<int, double> weights;
+    int src_sw = it->first / numSbPerDcn;
+    int dst_sb = it->first % numSbPerDcn;
+
+    double sum_weight = 0;
+    std::unordered_map<int, double>::iterator iter;
+    for (std::pair<int, double> p : it->second) {
+      int link = p.first;
+      iter = weights.find(link);
+      if (iter == weights.end()) {
+        weights[link] = p.second;
+        sum_weight += p.second;
+      }
+      else {
+        weights[link] += p.second;
+        sum_weight += p.second;
+      }
+    }
+    if (sum_weight <= 0) continue;
+    std::cout << "Group Assignment for Switch " << src_sw << " -> "
+              << "SuperBlock " << dst_sb << " " << std::endl;
+    for (iter=weights.begin(); iter!=weights.end(); ++iter) {
+      std::cout << "link " << iter->first << ": " << int(iter->second/sum_weight * 127) << std::endl;
+    }
+  }
 }
 
 } // namespace dcnonly
