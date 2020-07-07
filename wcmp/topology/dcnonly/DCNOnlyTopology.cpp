@@ -379,8 +379,6 @@ SCIP_RETCODE DCNOnlyTopology::FindBestDcnRouting() {
   return SCIP_OKAY;
 }
 
-// TODO: WCMP weight can be calculated, but it is ignored here
-// TODO: reason given in the comments following
 void DCNOnlyTopology::ResultAnalysis() {
   // traffic amount of each link
   std::vector<double> links_load = std::vector<double>(links_.size());
@@ -470,7 +468,7 @@ void DCNOnlyTopology::ResultAnalysis() {
     std::cout << "Group Assignment for Switch " << src_sw << " -> "
               << "SuperBlock " << dst_sb << " " << std::endl;
     for (iter=weights.begin(); iter!=weights.end(); ++iter) {
-      std::cout << "link " << iter->first << ": " << int(iter->second/sum_weight * 127) << std::endl;
+      std::cout << "link " << iter->first << ": " << iter->second/sum_weight*127 << std::endl;
     }
   }
 }

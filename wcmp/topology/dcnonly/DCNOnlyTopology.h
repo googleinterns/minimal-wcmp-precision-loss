@@ -13,7 +13,7 @@ namespace wcmp {
 namespace topo {
 namespace dcnonly {
 
-const int numSbPerDcn = 3;
+const int numSbPerDcn = 5;
 const int numMbPerSb = 1;
 const int numS1PerMb = 64; // 64
 const int numS2PerMb = 8; // 8
