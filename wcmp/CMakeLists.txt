@@ -21,10 +21,10 @@ add_executable(wcmp
 #		components/Path.h
 #		components/Switch.cpp
 #		components/Switch.h
-#		topology/full/FullTopology.cpp
-#		topology/full/FullTopology.h
-		topology/dcnonly/DCNOnlyTopology.cpp
-		topology/dcnonly/DCNOnlyTopology.h
+		topology/full/FullTopology.cpp
+		topology/full/FullTopology.h
+#		topology/dcnonly/DCNOnlyTopology.cpp
+#		topology/dcnonly/DCNOnlyTopology.h
 		topology/DCN.h
 		definitions.h
 		main.cpp)

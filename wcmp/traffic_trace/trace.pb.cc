@@ -15,7 +15,6 @@
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_trace_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto;
-namespace trace {
 class Matrix_TrafficMapEntry_DoNotUseDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Matrix_TrafficMapEntry_DoNotUse> _instance;
@@ -24,16 +23,15 @@ class MatrixDefaultTypeInternal {
  public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Matrix> _instance;
 } _Matrix_default_instance_;
-}  // namespace trace
 static void InitDefaultsscc_info_Matrix_trace_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
-    void* ptr = &::trace::_Matrix_default_instance_;
-    new (ptr) ::trace::Matrix();
+    void* ptr = &::_Matrix_default_instance_;
+    new (ptr) ::Matrix();
     ::PROTOBUF_NAMESPACE_ID::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::trace::Matrix::InitAsDefaultInstance();
+  ::Matrix::InitAsDefaultInstance();
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Matrix_trace_2eproto =
@@ -44,10 +42,10 @@ static void InitDefaultsscc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto()
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   {
-    void* ptr = &::trace::_Matrix_TrafficMapEntry_DoNotUse_default_instance_;
-    new (ptr) ::trace::Matrix_TrafficMapEntry_DoNotUse();
+    void* ptr = &::_Matrix_TrafficMapEntry_DoNotUse_default_instance_;
+    new (ptr) ::Matrix_TrafficMapEntry_DoNotUse();
   }
-  ::trace::Matrix_TrafficMapEntry_DoNotUse::InitAsDefaultInstance();
+  ::Matrix_TrafficMapEntry_DoNotUse::InitAsDefaultInstance();
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto =
@@ -58,37 +56,37 @@ static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_trace_2eproto = nullptr;
 
 const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_trace_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  PROTOBUF_FIELD_OFFSET(::trace::Matrix_TrafficMapEntry_DoNotUse, _has_bits_),
-  PROTOBUF_FIELD_OFFSET(::trace::Matrix_TrafficMapEntry_DoNotUse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Matrix_TrafficMapEntry_DoNotUse, _has_bits_),
+  PROTOBUF_FIELD_OFFSET(::Matrix_TrafficMapEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::trace::Matrix_TrafficMapEntry_DoNotUse, key_),
-  PROTOBUF_FIELD_OFFSET(::trace::Matrix_TrafficMapEntry_DoNotUse, value_),
+  PROTOBUF_FIELD_OFFSET(::Matrix_TrafficMapEntry_DoNotUse, key_),
+  PROTOBUF_FIELD_OFFSET(::Matrix_TrafficMapEntry_DoNotUse, value_),
   0,
   1,
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::trace::Matrix, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::Matrix, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::trace::Matrix, traffic_map_),
+  PROTOBUF_FIELD_OFFSET(::Matrix, traffic_map_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
-  { 0, 7, sizeof(::trace::Matrix_TrafficMapEntry_DoNotUse)},
-  { 9, -1, sizeof(::trace::Matrix)},
+  { 0, 7, sizeof(::Matrix_TrafficMapEntry_DoNotUse)},
+  { 9, -1, sizeof(::Matrix)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::trace::_Matrix_TrafficMapEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::trace::_Matrix_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::_Matrix_TrafficMapEntry_DoNotUse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::_Matrix_default_instance_),
 };
 
 const char descriptor_table_protodef_trace_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\013trace.proto\022\005trace\"o\n\006Matrix\0222\n\013traffi"
-  "c_map\030\001 \003(\0132\035.trace.Matrix.TrafficMapEnt"
-  "ry\0321\n\017TrafficMapEntry\022\013\n\003key\030\001 \001(\005\022\r\n\005va"
-  "lue\030\002 \001(\001:\0028\001b\006proto3"
+  "\n\013trace.proto\"i\n\006Matrix\022,\n\013traffic_map\030\001"
+  " \003(\0132\027.Matrix.TrafficMapEntry\0321\n\017Traffic"
+  "MapEntry\022\013\n\003key\030\001 \001(\005\022\r\n\005value\030\002 \001(\001:\0028\001"
+  "b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_trace_2eproto_deps[1] = {
 };
@@ -98,7 +96,7 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_tra
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_trace_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_trace_2eproto = {
-  false, false, descriptor_table_protodef_trace_2eproto, "trace.proto", 141,
+  false, false, descriptor_table_protodef_trace_2eproto, "trace.proto", 128,
   &descriptor_table_trace_2eproto_once, descriptor_table_trace_2eproto_sccs, descriptor_table_trace_2eproto_deps, 2, 0,
   schemas, file_default_instances, TableStruct_trace_2eproto::offsets,
   file_level_metadata_trace_2eproto, 2, file_level_enum_descriptors_trace_2eproto, file_level_service_descriptors_trace_2eproto,
@@ -106,7 +104,6 @@ const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_trace_
 
 // Force running AddDescriptors() at dynamic initialization time.
 static bool dynamic_init_dummy_trace_2eproto = (static_cast<void>(::PROTOBUF_NAMESPACE_ID::internal::AddDescriptors(&descriptor_table_trace_2eproto)), true);
-namespace trace {
 
 // ===================================================================
 
@@ -138,13 +135,13 @@ Matrix::Matrix(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   traffic_map_(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:trace.Matrix)
+  // @@protoc_insertion_point(arena_constructor:Matrix)
 }
 Matrix::Matrix(const Matrix& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   traffic_map_.MergeFrom(from.traffic_map_);
-  // @@protoc_insertion_point(copy_constructor:trace.Matrix)
+  // @@protoc_insertion_point(copy_constructor:Matrix)
 }
 
 void Matrix::SharedCtor() {
@@ -152,7 +149,7 @@ void Matrix::SharedCtor() {
 }
 
 Matrix::~Matrix() {
-  // @@protoc_insertion_point(destructor:trace.Matrix)
+  // @@protoc_insertion_point(destructor:Matrix)
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -177,7 +174,7 @@ const Matrix& Matrix::default_instance() {
 
 
 void Matrix::Clear() {
-// @@protoc_insertion_point(message_clear_start:trace.Matrix)
+// @@protoc_insertion_point(message_clear_start:Matrix)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -230,7 +227,7 @@ failure:
 
 ::PROTOBUF_NAMESPACE_ID::uint8* Matrix::_InternalSerialize(
     ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:trace.Matrix)
+  // @@protoc_insertion_point(serialize_to_array_start:Matrix)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -269,12 +266,12 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:trace.Matrix)
+  // @@protoc_insertion_point(serialize_to_array_end:Matrix)
   return target;
 }
 
 size_t Matrix::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:trace.Matrix)
+// @@protoc_insertion_point(message_byte_size_start:Matrix)
   size_t total_size = 0;
 
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -300,22 +297,22 @@ size_t Matrix::ByteSizeLong() const {
 }
 
 void Matrix::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:trace.Matrix)
+// @@protoc_insertion_point(generalized_merge_from_start:Matrix)
   GOOGLE_DCHECK_NE(&from, this);
   const Matrix* source =
       ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Matrix>(
           &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:trace.Matrix)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Matrix)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:trace.Matrix)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:Matrix)
     MergeFrom(*source);
   }
 }
 
 void Matrix::MergeFrom(const Matrix& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:trace.Matrix)
+// @@protoc_insertion_point(class_specific_merge_from_start:Matrix)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
@@ -325,14 +322,14 @@ void Matrix::MergeFrom(const Matrix& from) {
 }
 
 void Matrix::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:trace.Matrix)
+// @@protoc_insertion_point(generalized_copy_from_start:Matrix)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 void Matrix::CopyFrom(const Matrix& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:trace.Matrix)
+// @@protoc_insertion_point(class_specific_copy_from_start:Matrix)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -354,13 +351,12 @@ void Matrix::InternalSwap(Matrix* other) {
 
 
 // @@protoc_insertion_point(namespace_scope)
-}  // namespace trace
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::trace::Matrix_TrafficMapEntry_DoNotUse* Arena::CreateMaybeMessage< ::trace::Matrix_TrafficMapEntry_DoNotUse >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::trace::Matrix_TrafficMapEntry_DoNotUse >(arena);
+template<> PROTOBUF_NOINLINE ::Matrix_TrafficMapEntry_DoNotUse* Arena::CreateMaybeMessage< ::Matrix_TrafficMapEntry_DoNotUse >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Matrix_TrafficMapEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::trace::Matrix* Arena::CreateMaybeMessage< ::trace::Matrix >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::trace::Matrix >(arena);
+template<> PROTOBUF_NOINLINE ::Matrix* Arena::CreateMaybeMessage< ::Matrix >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::Matrix >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

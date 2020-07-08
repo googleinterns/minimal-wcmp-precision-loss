@@ -89,8 +89,7 @@ SbTrafficMatrix GenerateStrideMatrix(int num_sb) {
 
 // the interface to generate the traffic matrix
 SbTrafficMatrix
-Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
-                             std::string output) {
+Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern) {
   // input check
   if (num_sb <= 1) {
     LOG(ERROR) << "The number of SuperBlocks cannot be less than 2.";
@@ -117,27 +116,41 @@ Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
     case TrafficPattern::kUnknown:
       break;
   }
+  return matrix;
+}
+
+void Trace::ExportTrafficTrace(int num_sb, TrafficPattern traffic_pattern,
+                               std::string output) {
+  SbTrafficMatrix matrix = GenerateTrafficMatrix(num_sb, traffic_pattern);
   // export the result if the output field is not "none"
   if (output != "none") {
     // test code
     // set the output file
     const char *filename = output.c_str();
-    std::fstream fd(filename,
-                    std::ios::out | std::ios::trunc | std::ios::binary);
+    std::fstream fd(filename);
     // write data into proto
-    auto mx = trace::Matrix();
-    auto map = mx.mutable_traffic_map();
-    map->insert({0, 10});
+    Matrix mx;
+    for (auto it=matrix.begin(); it!=matrix.end(); ++it) {
+      mx.mutable_traffic_map()->insert({it->first, it->second});
+    }
     mx.SerializeToOstream(&fd);
     google::protobuf::ShutdownProtobufLibrary();
     std::cout << "output successfully." << std::endl;
   }
-  return matrix;
 }
 
 SbTrafficMatrix Trace::ImportTrafficTrace(std::string input) {
-  // need implementation with protobuf
-  // added soon
+  SbTrafficMatrix matrix;
+  // parse the matrix from the file
+  std::fstream fd(input.c_str(), std::ios::in | std::ios::binary);
+  Matrix mx;
+  mx.ParseFromIstream(&fd);
+  for (auto it=mx.traffic_map().cbegin(); it!=mx.traffic_map().cend(); ++it) {
+    matrix[it->first] = it->second;
+    std::cout << it->first << " " << it->second << std::endl;
+  }
+  google::protobuf::ShutdownProtobufLibrary();
+  return matrix;
 }
 
 } // namespace traffic

@@ -57,19 +57,16 @@ struct TableStruct_trace_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_trace_2eproto;
-namespace trace {
 class Matrix;
 class MatrixDefaultTypeInternal;
 extern MatrixDefaultTypeInternal _Matrix_default_instance_;
 class Matrix_TrafficMapEntry_DoNotUse;
 class Matrix_TrafficMapEntry_DoNotUseDefaultTypeInternal;
 extern Matrix_TrafficMapEntry_DoNotUseDefaultTypeInternal _Matrix_TrafficMapEntry_DoNotUse_default_instance_;
-}  // namespace trace
 PROTOBUF_NAMESPACE_OPEN
-template<> ::trace::Matrix* Arena::CreateMaybeMessage<::trace::Matrix>(Arena*);
-template<> ::trace::Matrix_TrafficMapEntry_DoNotUse* Arena::CreateMaybeMessage<::trace::Matrix_TrafficMapEntry_DoNotUse>(Arena*);
+template<> ::Matrix* Arena::CreateMaybeMessage<::Matrix>(Arena*);
+template<> ::Matrix_TrafficMapEntry_DoNotUse* Arena::CreateMaybeMessage<::Matrix_TrafficMapEntry_DoNotUse>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
-namespace trace {
 
 // ===================================================================
 
@@ -104,7 +101,7 @@ public:
 // -------------------------------------------------------------------
 
 class Matrix PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:trace.Matrix) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Matrix) */ {
  public:
   inline Matrix() : Matrix(nullptr) {}
   virtual ~Matrix();
@@ -193,7 +190,7 @@ class Matrix PROTOBUF_FINAL :
   void InternalSwap(Matrix* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "trace.Matrix";
+    return "Matrix";
   }
   protected:
   explicit Matrix(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -236,7 +233,7 @@ class Matrix PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
       mutable_traffic_map();
 
-  // @@protoc_insertion_point(class_scope:trace.Matrix)
+  // @@protoc_insertion_point(class_scope:Matrix)
  private:
   class _Internal;
 
@@ -281,7 +278,7 @@ Matrix::_internal_traffic_map() const {
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
 Matrix::traffic_map() const {
-  // @@protoc_insertion_point(field_map:trace.Matrix.traffic_map)
+  // @@protoc_insertion_point(field_map:Matrix.traffic_map)
   return _internal_traffic_map();
 }
 inline ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
@@ -290,7 +287,7 @@ Matrix::_internal_mutable_traffic_map() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
 Matrix::mutable_traffic_map() {
-  // @@protoc_insertion_point(field_mutable_map:trace.Matrix.traffic_map)
+  // @@protoc_insertion_point(field_mutable_map:Matrix.traffic_map)
   return _internal_mutable_traffic_map();
 }
 
@@ -302,7 +299,6 @@ Matrix::mutable_traffic_map() {
 
 // @@protoc_insertion_point(namespace_scope)
 
-}  // namespace trace
 
 // @@protoc_insertion_point(global_scope)
 

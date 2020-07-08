@@ -6,14 +6,14 @@
 #include <glog/logging.h>
 #include "topology/DCN.h"
 #include "topology/dcnonly/DCNOnlyTopology.h"
-//#include "topology/full/FullTopology.h"
+#include "topology/full/FullTopology.h"
 
 int main() {
 	// initial glog
 	google::InitGoogleLogging("scip");
 
 	// initialize the DCN network
-	wcmp::topo::dcnonly::DCNOnlyTopology network;
+	wcmp::topo::full::FullTopology network;
 
 	// find the best routing policy
 	SCIP_RETCODE retcode = network.FindBestDcnRouting();

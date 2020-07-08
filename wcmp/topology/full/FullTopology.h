@@ -6,64 +6,90 @@
 #define WCMP_FULLTOPOLOGY_H
 
 
-#include <topology/DCN.h>
+#include <unordered_map>
+#include "topology/DCN.h"
 
-#define NUM_SB_PER_DCN 5
-#define NUM_MB_PER_SB 1
-#define NUM_S1_PER_MB 64
-#define NUM_S2_PER_MB 8
-#define NUM_S3_PER_MB 8
-#define NUM_LINK_PER_SB 512
+namespace wcmp {
+namespace topo {
+namespace full {
 
-#define BW_S2_S3 100
-#define BW_S1_S2 100
+const int numSbPerDcn = 5;
+const int numMbPerSb = 1;
+const int numS1PerMb = 64; // 64
+const int numS2PerMb = 8; // 8
+const int numS3PerMb = 8; // 8
 
-#define NUM_S3_PER_SB (NUM_S3_PER_MB*NUM_MB_PER_SB)
-#define NUM_S2_PER_SB (NUM_S2_PER_MB*NUM_MB_PER_SB)
-#define NUM_S1_PER_SB (NUM_S1_PER_MB*NUM_MB_PER_SB)
+const int numS2PerSb = numS3PerMb * numMbPerSb;
 
-// The DCN network for the Whole NETWORK topology
-// Used for Milestone 2, now as WIP
-// For Milestone 1, please refer to DCNOnlyTopology
-class FullTopology: public DCN {
+const double infinity = 1e+20;
+
+// The DCN network with only the top level, namely, DCN level
+// The initialization of this class will record the paths information as well
+// The ResultAnalysis function is used to print out the information
+// The SCIP result is stored in the scip_result
+class FullTopology : public dcn::DCN {
+
+private:
+  std::unordered_map<int, double> traffic_matrix_;
+  std::vector<Switch> switches_;
+  std::vector<Link> links_;
+  std::vector<Path> paths_;
+
+  std::vector<std::vector<int>> per_sb_switches_;
+  std::vector<std::vector<std::vector<int>>> per_pair_links_;
+  std::vector<std::vector<std::vector<int>>> per_pair_paths_;
+
+  std::unordered_map<int, std::vector<int>> per_link_paths_;
+
+  std::vector<std::vector<std::vector<double>>> scip_result_;
+
+  // functions to create the topology
+  void AddSwitches();
+
+  void AddLinks();
+
+  void AddPaths();
+
+  // Input: source superblock, destination superblock
+  // Return: all the direct dcn links between the src and dst
+  std::vector<int> FindLinks(int src_sb, int dst_sb);
+
+  // functions to create the SCIP model
+  SCIP_RETCODE CreateVariableMlu(SCIP *scip, SCIP_VAR *&u);
+
+  SCIP_RETCODE CreateVariableWeight(SCIP *scip,
+                                    std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
+
+  SCIP_RETCODE CreateConstraintsEqualToOne(SCIP *scip,
+                                           std::vector<SCIP_CONS *> &equal_cons,
+                                           std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
+
+  SCIP_RETCODE CreateConstraintsLinkUtilizationBound(SCIP *scip,
+                                                     std::vector<SCIP_CONS *> &equal_cons,
+                                                     SCIP_VAR *&u,
+                                                     std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
 
 public:
-	std::vector<std::vector<double>> traffic_matrix;
-	std::vector<Switch *> s3_list;
-	std::vector<Switch *> s2_list;
-	std::vector<Switch *> s1_list;
-	std::vector<Link *> dcn_link_list;
-	std::vector<Link *> mid_link_list;
-	std::vector<Link *> tor_link_list;
-	std::vector<std::vector<std::vector<Path *>>> dcn_path_list;
-	std::vector<std::vector<std::vector<double>>> scip_result;
+  // constructor function
+  // initialize the network topology and record the switches and links
+  // generate all the paths for the dcn connection
+  // and record path in both dcn_path_list and Link objects
+  // We will never find path or find links in the rest of the code
+  FullTopology();
 
-	// constructor function
-	// initialize the network topology and record the switches and links
-	// generate all the paths for the dcn connection
-	// and record path in both dcn_path_list and Link objects
-	// We will never find path or find links in the rest of the code
-	FullTopology();
+  // print the path with the link name
+  void PrintPath(const Path &path);
 
-	// Input: source superblock, destination superblock
-	// Return: all the direct dcn links between the src and dst
-	std::vector<Link *> find_links(int src_sb, int dst_sb);
+  // Use SCIP to find the best traffic allocation method,
+  // follows the LP model on the document.
+  SCIP_RETCODE FindBestDcnRouting();
 
-	std::vector<std::vector<Link *>> find_paths(int src_sb, int dst_sb);
-
-	std::vector<Link *> find_intra_links(int src_sb, int dst_sb);
-
-	std::vector<std::vector<Link *>> find_intra_paths(int src_sb, int dst_sb);
-
-	// print the path with the link name
-	void print_path(std::vector<Link *> path);
-
-	SCIP_RETCODE find_best_dcn_routing();
-
-	// Print the traffic allocation details
-	void result_analysis();
+  // Print the traffic allocation details
+  void ResultAnalysis();
 
 };
 
-
-#endif //WCMP_FULLTOPOLOGY_H
+} // namespace full
+} // namespace topo
+} // namespace wcmp
+#endif //WCMP_FullTOPOLOGY_H

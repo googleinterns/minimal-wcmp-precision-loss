@@ -40,11 +40,16 @@ public:
 
   // matrix generation function for sparse method
   SbTrafficMatrix
-  GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
-                        std::string output = "none");
+  GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern);
 
+  // export traffic trace
+  void ExportTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
+    std::string output);
   // import traffic trace
   SbTrafficMatrix ImportTrafficTrace(std::string input);
+
+  void ExportTrafficTrace(int num_sb, TrafficPattern traffic_pattern,
+                          std::string output);
 };
 
 } // namespace traffic
