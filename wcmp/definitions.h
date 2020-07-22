@@ -19,12 +19,23 @@ namespace wcmp {
 
 const int tableSize = 16384;
 const int maxGroupSize = 256;
+const double intraDomainBandwidth = 100;
+const double maxBandwidth = 999999;
 
 enum class SwitchType {
   unknown = 0,
   s1 = 1,
   s2 = 2,
   s3 = 3,
+  vir = 4,
+};
+
+enum class LinkType {
+  unknown = 0,
+  up = 1,
+  down = 2,
+  dcn = 3,
+  vir = 4,
 };
 
 struct Switch {
@@ -39,6 +50,7 @@ struct Link {
   const int src_sw_gid;
   const int dst_sw_gid;
   const double capacity;
+  const LinkType link_type;
   const int gid; // global id
 };
 

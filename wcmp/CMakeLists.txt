@@ -21,6 +21,8 @@ add_executable(wcmp
 #		components/Path.h
 #		components/Switch.cpp
 #		components/Switch.h
+		topology/full/LPSolver.cpp
+		topology/full/ILPSolver.cpp
 		topology/full/FullTopology.cpp
 		topology/full/FullTopology.h
 #		topology/dcnonly/DCNOnlyTopology.cpp

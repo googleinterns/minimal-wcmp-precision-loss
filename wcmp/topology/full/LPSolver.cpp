@@ -5,181 +5,14 @@
 
 #include <chrono>
 #include <glog/logging.h>
-#include "DCNOnlyTopology.h"
+#include "FullTopology.h"
 
 namespace wcmp {
 namespace topo {
-namespace dcnonly {
-
-static double test_SBs[10] = {100, 100, 40, 40, 200, 100, 40, 100, 200, 200};
-
-// add all the switches to the network
-void DCNOnlyTopology::AddSwitches() {
-  int sw_gid = 0;
-  per_sb_switches_ = std::vector<std::vector<int>>(numSbPerDcn);
-
-  // add s3 switches
-  for (int i = 0; i < numSbPerDcn; ++i)
-    for (int j = 0; j < numMbPerSb; ++j)
-      for (int k = 0; k < numS3PerMb; ++k) {
-        Switch tmp_sw = {i, j, k, SwitchType::s3,
-                                   sw_gid};
-        switches_.push_back(tmp_sw);
-        per_sb_switches_[i].push_back(sw_gid);
-        ++sw_gid;
-      }
-  // add s2 switches
-  for (int i = 0; i < numSbPerDcn; ++i)
-    for (int j = 0; j < numMbPerSb; ++j)
-      for (int k = 0; k < numS2PerMb; ++k) {
-        Switch tmp_sw = {i, j, k, SwitchType::s2,
-                                   sw_gid};
-        switches_.push_back(tmp_sw);
-        per_sb_switches_[i].push_back(sw_gid);
-        ++sw_gid;
-      }
-  // add s1 switches
-  for (int i = 0; i < numSbPerDcn; ++i)
-    for (int j = 0; j < numMbPerSb; ++j)
-      for (int k = 0; k < numS1PerMb; ++k) {
-        Switch tmp_sw = {i, j, k, SwitchType::s1,
-                                   sw_gid};
-        switches_.push_back(tmp_sw);
-        per_sb_switches_[i].push_back(sw_gid);
-        ++sw_gid;
-      }
-}
-
-// add all the links
-void DCNOnlyTopology::AddLinks() {
-  int link_gid = 0;
-  per_pair_links_ = std::vector<std::vector<std::vector<int>>>(numSbPerDcn,
-                                                               std::vector<std::vector<int>>(numSbPerDcn));
-  // determine source and destination superblocks
-  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
-    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
-      if (dst_sb != src_sb) {
-        int links_per_sb = numLinkPerSb / (numSbPerDcn - 1);
-        // determine source and destination middleblocks
-        for (int src_mb = 0; src_mb < numMbPerSb; ++src_mb) {
-          int dst_mb = src_mb; // only one color is allowed
-          int links_per_mb = links_per_sb / numMbPerSb;
-          // determine switch
-          int cnt = 0;
-          for (int i = 0; i < numS3PerMb*10; ++i) {
-            // determine the source and destination s3
-            int src = src_sb * numS2PerSb + src_mb * numS3PerMb + i%numS3PerMb;
-            int dst = dst_sb * numS2PerSb + dst_mb * numS3PerMb + i%numS3PerMb;
-            Link tmp_link = {switches_[src].gid,
-                             switches_[dst].gid,
-                             std::min(test_SBs[src_sb], test_SBs[dst_sb]),
-                             link_gid};
-            links_.push_back(tmp_link);
-            per_pair_links_[src_sb][dst_sb].push_back(link_gid);
-            ++link_gid;
-            ++cnt;
-            if (cnt >= links_per_mb) break;
-          }
-        }
-      }
-}
-
-// add all the paths
-void DCNOnlyTopology::AddPaths() {
-  int path_gid = 0;
-  // initialize the dcn path vectors
-  per_pair_paths_ = std::vector<std::vector<std::vector<int>>>(numSbPerDcn,
-                                                               std::vector<std::vector<int>>(
-                                                                 numSbPerDcn));
-
-  // list and store all the DCN paths
-  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
-    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
-      if (dst_sb != src_sb) {
-        int index = 0;
-        // add the direct paths
-        std::vector<int> direct_paths;
-        direct_paths = this->FindLinks(src_sb, dst_sb);
-        for (int link_gid : direct_paths) {
-          Path tmp_path = {{link_gid},
-                                     links_[link_gid].src_sw_gid,
-                                     links_[link_gid].dst_sw_gid,
-                                     index, path_gid};
-          paths_.push_back(tmp_path); // add path to the path list
-          per_pair_paths_[src_sb][dst_sb].push_back(
-            path_gid); // add path to per pair paths
-          per_link_paths_[link_gid].push_back(path_gid);
-          ++index;
-          ++path_gid;
-        }
-        // add the transit paths
-        for (int trans_sb = 0; trans_sb < numSbPerDcn; ++trans_sb) {
-          if ((trans_sb != src_sb) && (trans_sb != dst_sb)) {
-            std::vector<int> first_hops;
-            std::vector<int> second_hops;
-            first_hops = this->FindLinks(src_sb, trans_sb);
-            second_hops = this->FindLinks(trans_sb, dst_sb);
-            for (int first_gid : first_hops) {
-              for (int second_gid : second_hops) {
-                Path new_path = {
-                  {first_gid, second_gid},
-                  links_[first_gid].src_sw_gid,
-                  links_[second_gid].dst_sw_gid, index,
-                  path_gid};
-                paths_.push_back(new_path);
-                per_pair_paths_[src_sb][dst_sb].push_back(
-                  path_gid);
-                per_link_paths_[first_gid].push_back(path_gid);
-                per_link_paths_[second_gid].push_back(path_gid);
-                ++index;
-                ++path_gid;
-              }
-            }
-          }
-        }
-      }
-}
-
-// constructor function
-// the links between s2 and s3, s1 and s2 are ignored here
-// the paths between s1 are also ignored
-// TODO: will be added for milestone 2
-DCNOnlyTopology::DCNOnlyTopology() {
-  // initial traffic matrix
-  traffic::Trace trace;
-  traffic_matrix_ = trace.GenerateTrafficMatrix(numSbPerDcn,
-                                                traffic::TrafficPattern::kRandom,
-                                                "test");
-
-  // add switches
-  AddSwitches();
-  // add DCN links
-  AddLinks();
-  // add DCN paths
-  AddPaths();
-
-  std::cout << "Topology initialized" << std::endl;
-}
-
-// return the links between two SuperBlocks
-std::vector<int> DCNOnlyTopology::FindLinks(int src_sb, int dst_sb) {
-  std::vector<int> result;
-  for (int link_gid : per_pair_links_[src_sb][dst_sb]) {
-    result.push_back(link_gid);
-  }
-  return result;
-}
-
-// TODO: can be optimized for clearance
-void DCNOnlyTopology::PrintPath(const Path &path) {
-  for (int g : path.link_gid_list) {
-    std::cout << links_[g].gid << " => ";
-  }
-  std::cout << "END" << std::endl;
-}
+namespace full {
 
 // create variable for MLU
-SCIP_RETCODE DCNOnlyTopology::CreateVariableMlu(SCIP *scip, SCIP_VAR *&u) {
+SCIP_RETCODE FullTopology::CreateVariableMlu(SCIP *scip, SCIP_VAR *&u) {
   SCIP_CALL(SCIPcreateVarBasic(scip,
                                &u, // variable
                                "MLU", // name
@@ -192,8 +25,8 @@ SCIP_RETCODE DCNOnlyTopology::CreateVariableMlu(SCIP *scip, SCIP_VAR *&u) {
 }
 
 // create variable for weights
-SCIP_RETCODE DCNOnlyTopology::CreateVariableWeight(SCIP *scip,
-                                                   std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
+SCIP_RETCODE FullTopology::CreateVariableWeight(SCIP *scip,
+                                                std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
   x = std::vector<std::vector<std::vector<SCIP_VAR *>>>(numSbPerDcn,
                                                         std::vector<std::vector<SCIP_VAR *>>(
                                                           numSbPerDcn));
@@ -220,7 +53,7 @@ SCIP_RETCODE DCNOnlyTopology::CreateVariableWeight(SCIP *scip,
 }
 
 // add constraints for Sum(x_{ij})=1
-SCIP_RETCODE DCNOnlyTopology::CreateConstraintsEqualToOne(
+SCIP_RETCODE FullTopology::CreateConstraintsEqualToOne(
   SCIP *scip,
   std::vector<SCIP_CONS *> &equal_cons,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
@@ -250,7 +83,7 @@ SCIP_RETCODE DCNOnlyTopology::CreateConstraintsEqualToOne(
 }
 
 // set the constraint: link utilization < u
-SCIP_RETCODE DCNOnlyTopology::CreateConstraintsLinkUtilizationBound(
+SCIP_RETCODE FullTopology::CreateConstraintsLinkUtilizationBound(
   SCIP *scip,
   std::vector<SCIP_CONS *> &link_cons,
   SCIP_VAR *&u,
@@ -296,13 +129,12 @@ SCIP_RETCODE DCNOnlyTopology::CreateConstraintsLinkUtilizationBound(
 }
 
 // find the best routing policy in the DCN level
-// redundant constraints have been removed
-SCIP_RETCODE DCNOnlyTopology::FindBestDcnRouting() {
+SCIP_RETCODE FullTopology::FindBestDcnRouting() {
   SCIP *scip = nullptr;
   SCIP_CALL(SCIPcreate(&scip)); // create the SCIP environment
 
   SCIP_CALL(SCIPincludeDefaultPlugins(scip)); // include default plugins
-  SCIP_CALL(SCIPcreateProbBasic(scip, "MLU_DCN")); // create the SCIP problem
+  SCIP_CALL(SCIPcreateProbBasic(scip, "MLU_ILP_DCN")); // create the SCIP problem
   SCIP_CALL(SCIPsetObjsense(scip,
                             SCIP_OBJSENSE_MINIMIZE)); // set object sense to be minimize
 
@@ -382,7 +214,7 @@ SCIP_RETCODE DCNOnlyTopology::FindBestDcnRouting() {
   return SCIP_OKAY;
 }
 
-void DCNOnlyTopology::ResultAnalysis() {
+void FullTopology::ResultAnalysis() {
   // traffic amount of each link
   std::vector<double> links_load = std::vector<double>(links_.size());
   std::cout << "The path with 0 traffic is not printed. " << std::endl;
@@ -476,6 +308,6 @@ void DCNOnlyTopology::ResultAnalysis() {
   }
 }
 
-} // namespace dcnonly
+} // namespace full
 } // namespace topo
 } // namespace wcmp

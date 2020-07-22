@@ -13,13 +13,18 @@ namespace wcmp {
 namespace topo {
 namespace full {
 
-const int numSbPerDcn = 5;
+const int numSbPerDcn = 3;
 const int numMbPerSb = 1;
-const int numS1PerMb = 64; // 64
-const int numS2PerMb = 8; // 8
-const int numS3PerMb = 8; // 8
+const int numS1PerMb = 2; // 64
+const int numS2PerMb = 2; // 8
+const int numS3PerMb = 2; // 8
 
-const int numS2PerSb = numS3PerMb * numMbPerSb;
+const int numLinkPerSb = 8; //512;
+
+const int numS3PerSb = numS3PerMb * numMbPerSb;
+const int numS3PerDCN = numS3PerSb * numSbPerDcn;
+const int numSwPerMb = numS1PerMb+numS2PerMb+numS3PerMb;
+const int numSwPerSb = numSwPerMb*numMbPerSb;
 
 const double infinity = 1e+20;
 
@@ -35,26 +40,27 @@ private:
   std::vector<Link> links_;
   std::vector<Path> paths_;
 
+  std::vector<int> s3_virtual_switches_;
+  std::vector<int> s2_virtual_switches_;
   std::vector<std::vector<int>> per_sb_switches_;
-  std::vector<std::vector<std::vector<int>>> per_pair_links_;
+  std::vector<std::vector<int>> per_switch_links_;
+  std::vector<std::vector<std::vector<int>>> per_sb_pair_links_;
+  std::vector<std::vector<std::vector<int>>> per_s3_pair_links_;
   std::vector<std::vector<std::vector<int>>> per_pair_paths_;
-
   std::unordered_map<int, std::vector<int>> per_link_paths_;
 
   std::vector<std::vector<std::vector<double>>> scip_result_;
 
   // functions to create the topology
   void AddSwitches();
-
   void AddLinks();
-
   void AddPaths();
 
   // Input: source superblock, destination superblock
   // Return: all the direct dcn links between the src and dst
   std::vector<int> FindLinks(int src_sb, int dst_sb);
 
-  // functions to create the SCIP model
+  // functions to create the LP model
   SCIP_RETCODE CreateVariableMlu(SCIP *scip, SCIP_VAR *&u);
 
   SCIP_RETCODE CreateVariableWeight(SCIP *scip,
@@ -69,6 +75,47 @@ private:
                                                      SCIP_VAR *&u,
                                                      std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
 
+  // functions to create the LP model
+  SCIP_RETCODE CreateVariableGoal(SCIP *scip, SCIP_VAR *&u);
+  SCIP_RETCODE CreateVariableF(SCIP *scip,
+                                    std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
+  SCIP_RETCODE CreateVariableX(SCIP *scip,
+                                        std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
+  SCIP_RETCODE CreateVariableY(SCIP *scip,
+                               std::vector<std::vector<std::vector<SCIP_VAR *>>> &y);
+  SCIP_RETCODE CreateVariableB(SCIP *scip,
+                               std::vector<std::vector<SCIP_VAR *>> &b);
+  SCIP_RETCODE CreateConstraints1(SCIP *scip,
+                                           std::vector<SCIP_CONS *> &cons_1,
+                                           std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
+  SCIP_RETCODE CreateConstraints2(SCIP *scip,
+                                  std::vector<SCIP_CONS *> &cons_2,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
+  SCIP_RETCODE CreateConstraints3(SCIP *scip,
+                                  std::vector<SCIP_CONS *> &cons_3,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &f,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
+  SCIP_RETCODE CreateConstraints4(SCIP *scip,
+                                  std::vector<SCIP_CONS *> &cons_4,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &x,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &y);
+  SCIP_RETCODE CreateConstraints5(SCIP *scip,
+                                  std::vector<SCIP_CONS *> &cons_5,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
+                                  std::vector<std::vector<SCIP_VAR *>> &b);
+  SCIP_RETCODE CreateConstraints5_modified(SCIP *scip,
+                                  std::vector<SCIP_CONS *> &cons_5,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
+                                  std::vector<std::vector<SCIP_VAR *>> &b);
+  SCIP_RETCODE CreateConstraints6(SCIP *scip,
+                                  std::vector<SCIP_CONS *> &cons_6,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &f,
+                                  std::vector<std::vector<SCIP_VAR *>> &b);
+  SCIP_RETCODE CreateConstraints9(SCIP *scip,
+                                  std::vector<SCIP_CONS *> &cons_9,
+                                  SCIP_VAR *&u,
+                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
+
 public:
   // constructor function
   // initialize the network topology and record the switches and links
@@ -77,15 +124,19 @@ public:
   // We will never find path or find links in the rest of the code
   FullTopology();
 
-  // print the path with the link name
+  void PrintSwitch(int sw);
+  void PrintLink(int l);
+  void PrintAllLinks();
   void PrintPath(const Path &path);
 
   // Use SCIP to find the best traffic allocation method,
   // follows the LP model on the document.
   SCIP_RETCODE FindBestDcnRouting();
+  SCIP_RETCODE FindBestDcnRouting_ILP();
 
   // Print the traffic allocation details
   void ResultAnalysis();
+  void ResultAnalysis_ILP();
 
 };
 

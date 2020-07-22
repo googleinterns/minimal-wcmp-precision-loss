@@ -15,14 +15,16 @@ int main() {
 	// initialize the DCN network
 	wcmp::topo::full::FullTopology network;
 
+	network.PrintAllLinks();
+
 	// find the best routing policy
 	SCIP_RETCODE retcode = network.FindBestDcnRouting();
 	if (retcode != SCIP_OKAY) {
 		LOG(ERROR) << "The SCIP program is wrong.";
 	}
-
-	// analysis the result
-	network.ResultAnalysis();
+//
+//	// analysis the result
+//	network.ResultAnalysis();
 
 	return 0;
 }
