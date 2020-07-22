@@ -19,7 +19,7 @@ const int numS1PerMb = 2; // 64
 const int numS2PerMb = 2; // 8
 const int numS3PerMb = 2; // 8
 
-const int numLinkPerSb = 8; //512;
+const int numLinkPerSb = 512; //512;
 
 const int numS3PerSb = numS3PerMb * numMbPerSb;
 const int numS3PerDCN = numS3PerSb * numSbPerDcn;
@@ -50,6 +50,11 @@ private:
   std::unordered_map<int, std::vector<int>> per_link_paths_;
 
   std::vector<std::vector<std::vector<double>>> scip_result_;
+  double res_u_;
+  std::vector<std::vector<std::vector<double>>> res_f_;
+  std::vector<std::vector<std::vector<double>>> res_x_;
+  std::vector<std::vector<std::vector<double>>> res_y_;
+
 
   // functions to create the topology
   void AddSwitches();

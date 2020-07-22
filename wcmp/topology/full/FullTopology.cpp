@@ -110,36 +110,36 @@ void FullTopology::AddLinks() {
       }
     }
   }
-  // add S2-S3 links
-  for (int sb=0; sb<numSbPerDcn; ++sb) {
-    for (int mb=0; mb<numMbPerSb; ++mb) {
-      for (int i=0; i<numS3PerMb; ++i) {
-        int sw3 = sb*numSwPerSb+mb*numSwPerMb+i;
-        for (int j=0; j<numS2PerMb; ++j) {
-          int sw2 = sb*numSwPerSb+mb*numSwPerMb+numS3PerMb+j;
-          // add bidirectional links
-          Link tmp_link = {switches_[sw2].gid,
-                           switches_[sw3].gid,
-                           intraDomainBandwidth,
-                           LinkType::up,
-                           link_gid};
-          links_.push_back(tmp_link);
-          per_switch_links_[sw2].push_back(link_gid);
-          per_switch_links_[sw3].push_back(link_gid);
-          ++link_gid;
-          Link tmp_link2 = {switches_[sw3].gid,
-                           switches_[sw2].gid,
-                           intraDomainBandwidth,
-                           LinkType::down,
-                           link_gid};
-          links_.push_back(tmp_link2);
-          per_switch_links_[sw2].push_back(link_gid);
-          per_switch_links_[sw3].push_back(link_gid);
-          ++link_gid;
-        }
-      }
-    }
-  }
+//  // add S2-S3 links
+//  for (int sb=0; sb<numSbPerDcn; ++sb) {
+//    for (int mb=0; mb<numMbPerSb; ++mb) {
+//      for (int i=0; i<numS3PerMb; ++i) {
+//        int sw3 = sb*numSwPerSb+mb*numSwPerMb+i;
+//        for (int j=0; j<numS2PerMb; ++j) {
+//          int sw2 = sb*numSwPerSb+mb*numSwPerMb+numS3PerMb+j;
+//          // add bidirectional links
+//          Link tmp_link = {switches_[sw2].gid,
+//                           switches_[sw3].gid,
+//                           intraDomainBandwidth,
+//                           LinkType::up,
+//                           link_gid};
+//          links_.push_back(tmp_link);
+//          per_switch_links_[sw2].push_back(link_gid);
+//          per_switch_links_[sw3].push_back(link_gid);
+//          ++link_gid;
+//          Link tmp_link2 = {switches_[sw3].gid,
+//                           switches_[sw2].gid,
+//                           intraDomainBandwidth,
+//                           LinkType::down,
+//                           link_gid};
+//          links_.push_back(tmp_link2);
+//          per_switch_links_[sw2].push_back(link_gid);
+//          per_switch_links_[sw3].push_back(link_gid);
+//          ++link_gid;
+//        }
+//      }
+//    }
+//  }
   // add S1-S2 links
   // add virtual links at S3 level
   for (int sb=0; sb<numSbPerDcn; ++sb) {

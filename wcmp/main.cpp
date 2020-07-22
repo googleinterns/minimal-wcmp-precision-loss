@@ -18,7 +18,7 @@ int main() {
 	network.PrintAllLinks();
 
 	// find the best routing policy
-	SCIP_RETCODE retcode = network.FindBestDcnRouting();
+	SCIP_RETCODE retcode = network.FindBestDcnRouting_ILP();
 	if (retcode != SCIP_OKAY) {
 		LOG(ERROR) << "The SCIP program is wrong.";
 	}

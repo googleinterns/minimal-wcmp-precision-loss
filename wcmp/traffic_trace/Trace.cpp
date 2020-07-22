@@ -49,7 +49,7 @@ SbTrafficMatrix GenerateSparseMatrix(int num_sb) {
   for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
     for (int dst_sb = 0; dst_sb < num_sb; ++dst_sb) {
       if ((src_sb == 0) && (dst_sb == 1))
-        matrix[src_sb * num_sb + dst_sb] = 10.00;
+        matrix[src_sb * num_sb + dst_sb] = 40.00;
       else
         matrix[src_sb * num_sb + dst_sb] = 0.00;
     }
