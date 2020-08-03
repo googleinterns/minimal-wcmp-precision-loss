@@ -12,7 +12,7 @@ namespace topo {
 namespace full {
 
 // create variable for MLU
-SCIP_RETCODE FullTopology::CreateVariableMlu(SCIP *scip, SCIP_VAR *&u) {
+SCIP_RETCODE FullTopology::PathLPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u) {
   SCIP_CALL(SCIPcreateVarBasic(scip,
                                &u, // variable
                                "MLU", // name
@@ -25,15 +25,15 @@ SCIP_RETCODE FullTopology::CreateVariableMlu(SCIP *scip, SCIP_VAR *&u) {
 }
 
 // create variable for weights
-SCIP_RETCODE FullTopology::CreateVariableWeight(SCIP *scip,
-                                                std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
+SCIP_RETCODE FullTopology::PathLPCreateVariableWeight(SCIP *scip,
+                                                      std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
   x = std::vector<std::vector<std::vector<SCIP_VAR *>>>(numSbPerDcn,
                                                         std::vector<std::vector<SCIP_VAR *>>(
                                                           numSbPerDcn));
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb) {
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
       if (src_sb == dst_sb) continue;
-      for (int p = 0; p < per_pair_paths_[src_sb][dst_sb].size(); ++p) {
+      for (int p = 0; p < per_sb_pair_paths_[src_sb][dst_sb].size(); ++p) {
         x[src_sb][dst_sb].emplace_back((SCIP_VAR *) nullptr);
         std::stringstream ss;
         ss << "x_" << src_sb << "_" << dst_sb << "_" << p;
@@ -53,7 +53,7 @@ SCIP_RETCODE FullTopology::CreateVariableWeight(SCIP *scip,
 }
 
 // add constraints for Sum(x_{ij})=1
-SCIP_RETCODE FullTopology::CreateConstraintsEqualToOne(
+SCIP_RETCODE FullTopology::PathLPCreateConstraintsEqualToOne(
   SCIP *scip,
   std::vector<SCIP_CONS *> &equal_cons,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
@@ -62,7 +62,7 @@ SCIP_RETCODE FullTopology::CreateConstraintsEqualToOne(
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
       if (src_sb == dst_sb) continue; // skip the self loop
       equal_cons.emplace_back((SCIP_CONS *) nullptr); // add constraint
-      int num_paths = per_pair_paths_[src_sb][dst_sb].size();
+      int num_paths = per_sb_pair_paths_[src_sb][dst_sb].size();
       SCIP_Real values[num_paths];
       for (int k = 0; k < num_paths; ++k) values[k] = 1.0;
       std::stringstream ss;
@@ -83,14 +83,14 @@ SCIP_RETCODE FullTopology::CreateConstraintsEqualToOne(
 }
 
 // set the constraint: link utilization < u
-SCIP_RETCODE FullTopology::CreateConstraintsLinkUtilizationBound(
+SCIP_RETCODE FullTopology::PathLPCreateConstraintsLinkUtilizationBound(
   SCIP *scip,
-  std::vector<SCIP_CONS *> &link_cons,
+  std::vector<SCIP_CONS *> &equal_cons,
   SCIP_VAR *&u,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
   // iterate all the links
   for (int i = 0; i < links_.size(); ++i) {
-    link_cons.emplace_back((SCIP_CONS *) nullptr); // add constraint
+    equal_cons.emplace_back((SCIP_CONS *) nullptr); // add constraint
     std::vector<SCIP_VAR *> vars;
     std::vector<SCIP_Real> values;
 
@@ -115,7 +115,7 @@ SCIP_RETCODE FullTopology::CreateConstraintsLinkUtilizationBound(
     std::stringstream ss;
     ss << "cons_link_" << links_[i].gid;
     SCIP_CALL(SCIPcreateConsBasicLinear(scip,
-                                        &link_cons[i], // constraint
+                                        &equal_cons[i], // constraint
                                         ss.str().c_str(), // name
                                         vars.size() +
                                         1, // how many variables
@@ -123,13 +123,13 @@ SCIP_RETCODE FullTopology::CreateConstraintsLinkUtilizationBound(
                                         scip_values, // array of values of the coefficients of corresponding variables
                                         0, // LHS of the constraint
                                         infinity)); // RHS of the constraint
-    SCIP_CALL(SCIPaddCons(scip, link_cons[i]));
+    SCIP_CALL(SCIPaddCons(scip, equal_cons[i]));
   }
   return SCIP_OKAY;
 }
 
 // find the best routing policy in the DCN level
-SCIP_RETCODE FullTopology::FindBestDcnRouting() {
+SCIP_RETCODE FullTopology::FindBestDcnRoutingPathLP() {
   SCIP *scip = nullptr;
   SCIP_CALL(SCIPcreate(&scip)); // create the SCIP environment
 
@@ -143,22 +143,22 @@ SCIP_RETCODE FullTopology::FindBestDcnRouting() {
   SCIP_RETCODE ret;
 
   SCIP_VAR *u; // MLU
-  ret = CreateVariableMlu(scip, u);
+  ret = PathLPCreateVariableGoal(scip, u);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable u is wrong.";
   else std::cout << "Variable u created." << std::endl;
 
   std::vector<std::vector<std::vector<SCIP_VAR *>>> x; // initialize the variables
-  ret = CreateVariableWeight(scip, x);
+  ret = PathLPCreateVariableWeight(scip, x);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable x is wrong.";
   else std::cout << "Variable x created." << std::endl;
 
   std::vector<SCIP_CONS *> equal_cons;
-  ret = CreateConstraintsEqualToOne(scip, equal_cons, x);
+  ret = PathLPCreateConstraintsEqualToOne(scip, equal_cons, x);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The equal constraints is wrong.";
   else std::cout << "Equal constraints created." << std::endl;
 
   std::vector<SCIP_CONS *> link_cons;
-  ret = CreateConstraintsLinkUtilizationBound(scip, link_cons, u, x);
+  ret = PathLPCreateConstraintsLinkUtilizationBound(scip, link_cons, u, x);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The link constraints is wrong.";
   else std::cout << "Link constraints created" << std::endl;
 
@@ -193,7 +193,7 @@ SCIP_RETCODE FullTopology::FindBestDcnRouting() {
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
       if (src_sb == dst_sb) continue;
 //			std::cout << src_sb << "->" << dst_sb << ": ";
-      for (int p : per_pair_paths_[src_sb][dst_sb]) {
+      for (int p : per_sb_pair_paths_[src_sb][dst_sb]) {
 //				std::cout << SCIPgetSolVal(scip, sol,
 //				             x[src_sb][dst_sb][paths_[p].per_pair_id]) << ", ";
         scip_result_[src_sb][dst_sb].push_back(SCIPgetSolVal(scip, sol,
@@ -214,14 +214,14 @@ SCIP_RETCODE FullTopology::FindBestDcnRouting() {
   return SCIP_OKAY;
 }
 
-void FullTopology::ResultAnalysis() {
+void FullTopology::PathLPResultAnalysis() {
   // traffic amount of each link
   std::vector<double> links_load = std::vector<double>(links_.size());
   std::cout << "The path with 0 traffic is not printed. " << std::endl;
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
       if (src_sb != dst_sb) {
-        for (int p : per_pair_paths_[src_sb][dst_sb]) {
+        for (int p : per_sb_pair_paths_[src_sb][dst_sb]) {
           // print the traffic amount for each link
           double traffic_amount =
             traffic_matrix_[src_sb * numSbPerDcn + dst_sb] *
@@ -258,7 +258,7 @@ void FullTopology::ResultAnalysis() {
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
       if (src_sb != dst_sb) {
-        for (int p : per_pair_paths_[src_sb][dst_sb]) {
+        for (int p : per_sb_pair_paths_[src_sb][dst_sb]) {
           int src_sw = paths_[p].src_sw_gid;
           int key = src_sw*numSbPerDcn + dst_sb;
           int link_gid = paths_[p].link_gid_list.front();

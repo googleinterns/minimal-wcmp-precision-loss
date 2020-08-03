@@ -12,27 +12,27 @@ namespace topo {
 namespace full {
 
 // create variable for MLU
-SCIP_RETCODE FullTopology::CreateVariableGoal(SCIP *scip, SCIP_VAR *&y) {
+SCIP_RETCODE FullTopology::ArcILPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u) {
   SCIP_CALL(SCIPcreateVarBasic(scip,
-                               &y, // variable
+                               &u, // variable
                                "MLU", // name
                                0.0, // lower bound
                                infinity, // upper bound
                                1.0, // objective
                                SCIP_VARTYPE_CONTINUOUS)); // variable type
-  SCIP_CALL(SCIPaddVar(scip, y));  //Adding the variable
+  SCIP_CALL(SCIPaddVar(scip, u));  //Adding the variable
   return SCIP_OKAY;
 }
 
 // create variable for weights
-SCIP_RETCODE FullTopology::CreateVariableF(SCIP *scip,
-                                                std::vector<std::vector<std::vector<SCIP_VAR *>>> &f) {
+SCIP_RETCODE FullTopology::ArcILPCreateVariableF(SCIP *scip,
+                                                 std::vector<std::vector<std::vector<SCIP_VAR *>>> &f) {
   f = std::vector<std::vector<std::vector<SCIP_VAR *>>>(numSbPerDcn,
     std::vector<std::vector<SCIP_VAR *>>(numSbPerDcn));
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb) {
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
       if (src_sb == dst_sb) continue;
-      for (int l = 0; l < links_.size(); ++l) {
+      for (int l=0; l<links_.size(); ++l) {
         f[src_sb][dst_sb].emplace_back((SCIP_VAR *) nullptr);
         std::stringstream ss;
         ss << "f_" << src_sb << "_" << dst_sb << "_" << l;
@@ -51,8 +51,8 @@ SCIP_RETCODE FullTopology::CreateVariableF(SCIP *scip,
 }
 
 // create variable for x
-SCIP_RETCODE FullTopology::CreateVariableX(SCIP *scip,
-         std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
+SCIP_RETCODE FullTopology::ArcILPCreateVariableX(SCIP *scip,
+                                                 std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
   x = std::vector<std::vector<std::vector<SCIP_VAR *>>>(numSbPerDcn,
     std::vector<std::vector<SCIP_VAR *>>(maxGroupSize+1));
   for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
@@ -62,7 +62,7 @@ SCIP_RETCODE FullTopology::CreateVariableX(SCIP *scip,
       if (src_sb!=dst_sb) dt = dt + traffic_matrix_[src_sb * numSbPerDcn + dst_sb];
     }
     for (int n=0; n<maxGroupSize+1; ++n) {
-      for (int l = 0; l < links_.size(); ++l) {
+      for (int l=0; l<links_.size(); ++l) {
         if (links_[l].link_type == LinkType::dcn) {
           x[dst_sb][n].emplace_back((SCIP_VAR *) nullptr);
           std::stringstream ss;
@@ -83,8 +83,8 @@ SCIP_RETCODE FullTopology::CreateVariableX(SCIP *scip,
 }
 
 // create variable for y
-SCIP_RETCODE FullTopology::CreateVariableY(SCIP *scip,
-                                           std::vector<std::vector<std::vector<SCIP_VAR *>>> &y) {
+SCIP_RETCODE FullTopology::ArcILPCreateVariableY(SCIP *scip,
+                                                 std::vector<std::vector<std::vector<SCIP_VAR *>>> &y) {
   y = std::vector<std::vector<std::vector<SCIP_VAR *>>>(numSbPerDcn,
     std::vector<std::vector<SCIP_VAR *>>(maxGroupSize+1));
   for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
@@ -94,7 +94,7 @@ SCIP_RETCODE FullTopology::CreateVariableY(SCIP *scip,
       if (src_sb!=dst_sb) dt = dt + traffic_matrix_[src_sb * numSbPerDcn + dst_sb];
     }
     for (int n=0; n<maxGroupSize+1; ++n) {
-      for (int l = 0; l < links_.size(); ++l) {
+      for (int l=0; l<links_.size(); ++l) {
         if (links_[l].link_type == LinkType::dcn) {
           y[dst_sb][n].emplace_back((SCIP_VAR *) nullptr);
           std::stringstream ss;
@@ -115,8 +115,8 @@ SCIP_RETCODE FullTopology::CreateVariableY(SCIP *scip,
 }
 
 // create variable for b
-SCIP_RETCODE FullTopology::CreateVariableB(SCIP *scip,
-                                           std::vector<std::vector<SCIP_VAR *>> &b) {
+SCIP_RETCODE FullTopology::ArcILPCreateVariableB(SCIP *scip,
+                                                 std::vector<std::vector<SCIP_VAR *>> &b) {
   b = std::vector<std::vector<SCIP_VAR *>>(numSbPerDcn);
   for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
     // get the Dt
@@ -124,7 +124,7 @@ SCIP_RETCODE FullTopology::CreateVariableB(SCIP *scip,
     for (int src_sb=0; src_sb<numSbPerDcn; ++src_sb) {
       if (src_sb!=dst_sb) dt = dt + traffic_matrix_[src_sb * numSbPerDcn + dst_sb];
     }
-    for (int l = 0; l < links_.size(); ++l) {
+    for (int l=0; l<links_.size(); ++l) {
       if (links_[l].link_type == LinkType::dcn) {
         b[dst_sb].emplace_back((SCIP_VAR *) nullptr);
         std::stringstream ss;
@@ -145,62 +145,30 @@ SCIP_RETCODE FullTopology::CreateVariableB(SCIP *scip,
 
 // add constraints for (1)
 // the input flow and the output flow should be the same
-SCIP_RETCODE FullTopology::CreateConstraints1(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints1(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_1,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &f) {
   int cnt = 0;
-  // iterate all st pairs
-  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb) {
-    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
-      if (src_sb == dst_sb) continue;
-      // iterate all s3 switches
-      for (int sw=0; sw<numS3PerDCN; ++sw) {
+  // iterate all src and dst
+  for (int src_sb = 0; src_sb < src_sw_group.size(); ++src_sb) {
+    for (int dst_sb = 0; dst_sb < dst_sw_group.size(); ++dst_sb) {
+      if ((src_sb == dst_sb) && (wcmp::problem_scope>1)) continue;
+      // iterate all mid switches
+      for (int sw : sw_group) {
         cons_1.emplace_back((SCIP_CONS *) nullptr); // add constraint
         std::vector<SCIP_VAR *> vars;
         std::vector<SCIP_Real> values;
-        // for source s3 switch
-        if (switches_[sw].superblock_id == src_sb) {
-          for (int i=0; i<per_switch_links_[sw].size(); ++i) {
-            int l = per_switch_links_[sw][i];
-            if ((links_[l].link_type==LinkType::dcn) && (links_[l].src_sw_gid == sw)) {
+        for (int l : per_switch_links_[sw]) {
+          // only target the l in the link_group
+          if (std::find(link_group.begin(), link_group.end(), l) != link_group.end()) {
+            if (links_[l].src_sw_gid == sw) {
               vars.push_back(f[src_sb][dst_sb][l]);
               values.push_back(1);
             }
-            else if ((links_[l].link_type==LinkType::vir) && (links_[l].dst_sw_gid == sw)) {
+            else if (links_[l].dst_sw_gid == sw) {
               vars.push_back(f[src_sb][dst_sb][l]);
               values.push_back(-1);
-            }
-          }
-        }
-        // for destination s3 switch
-        else if (switches_[sw].superblock_id == dst_sb) {
-          for (int i=0; i<per_switch_links_[sw].size(); ++i) {
-            int l = per_switch_links_[sw][i];
-            if ((links_[l].link_type==LinkType::dcn) && (links_[l].dst_sw_gid == sw)) {
-              vars.push_back(f[src_sb][dst_sb][l]);
-              values.push_back(1);
-            }
-            else if ((links_[l].link_type==LinkType::vir) && (links_[l].src_sw_gid == sw)) {
-              vars.push_back(f[src_sb][dst_sb][l]);
-              values.push_back(-1);
-            }
-          }
-        }
-        // for mid s3 switches
-        else {
-          for (int i=0; i<per_switch_links_[sw].size(); ++i) {
-            int l = per_switch_links_[sw][i];
-            if ((links_[l].link_type==LinkType::dcn) && (switches_[links_[l].src_sw_gid].superblock_id == src_sb)) {
-              vars.push_back(f[src_sb][dst_sb][l]);
-              values.push_back(1);
-            }
-            else if ((links_[l].link_type==LinkType::dcn) && (switches_[links_[l].dst_sw_gid].superblock_id == dst_sb)) {
-              vars.push_back(f[src_sb][dst_sb][l]);
-              values.push_back(-1);
-            }
-            else {
-//              std::cout << switches_[links_[l].dst_sw_gid].superblock_id << std::endl;
             }
           }
         }
@@ -228,44 +196,55 @@ SCIP_RETCODE FullTopology::CreateConstraints1(
 }
 
 // add constraints for (2)
-SCIP_RETCODE FullTopology::CreateConstraints2(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints2(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_2,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &f) {
   int cnt = 0;
-  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb) {
-    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
-      if (src_sb == dst_sb) continue;
-      for (int vs=0; vs < s3_virtual_switches_.size(); ++vs) {
+  for (int src_idx = 0; src_idx < src_sw_group.size(); ++src_idx) {
+    for (int dst_idx = 0; dst_idx < dst_sw_group.size(); ++dst_idx) {
+      if ((src_idx == dst_idx) && (wcmp::problem_scope > 1)) continue;
+      int src_sw = src_sw_group[src_idx];
+      int dst_sw = dst_sw_group[dst_idx];
+      for (int sw : sw_group) {
         cons_2.emplace_back((SCIP_CONS *) nullptr); // add constraint
         std::vector<SCIP_VAR *> vars;
         std::vector<SCIP_Real> values;
-        if (vs == src_sb) {
-          int vsw = s3_virtual_switches_[vs];
-          for (int i=0; i<per_switch_links_[vsw].size(); ++i) {
-            int l = per_switch_links_[vsw][i];
-            if (links_[l].src_sw_gid == vsw) {
-              vars.push_back(f[src_sb][dst_sb][l]);
+        // source switch
+        if (sw == src_sw) {
+          for (int i=0; i<per_switch_links_[sw].size(); ++i) {
+            int l = per_switch_links_[sw][i];
+            if (links_[l].src_sw_gid == sw) {
+              vars.push_back(f[src_idx][dst_idx][l]);
               values.push_back(1);
             }
           }
         }
-        else if (vs == dst_sb) {
-          int vsw = s3_virtual_switches_[vs];
-          for (int i=0; i<per_switch_links_[vsw].size(); ++i) {
-            int l = per_switch_links_[vsw][i];
-            if (links_[l].dst_sw_gid == vsw) {
-              vars.push_back(f[src_sb][dst_sb][l]);
+        // destination switch
+        else if (sw == dst_sw) {
+          for (int i=0; i<per_switch_links_[sw].size(); ++i) {
+            int l = per_switch_links_[sw][i];
+            if (links_[l].dst_sw_gid == sw) {
+              vars.push_back(f[src_idx][dst_idx][l]);
               values.push_back(1);
             }
           }
         }
+        // other switches
         else {
-          int vsw = s3_virtual_switches_[vs];
-          for (int i=0; i<per_switch_links_[vsw].size(); ++i) {
-            int l = per_switch_links_[vsw][i];
-            vars.push_back(f[src_sb][dst_sb][l]);
-            values.push_back(1);
+          for (int i=0; i<per_switch_links_[sw].size(); ++i) {
+            int l = per_switch_links_[sw][i];
+            // only target the l in the link_group
+            if (std::find(link_group.begin(), link_group.end(), l) != link_group.end()) {
+              if (links_[l].src_sw_gid == sw) {
+                vars.push_back(f[src_idx][dst_idx][l]);
+                values.push_back(1);
+              }
+              else if (links_[l].dst_sw_gid == sw) {
+                vars.push_back(f[src_idx][dst_idx][l]);
+                values.push_back(-1);
+              }
+            }
           }
         }
         // add constraints
@@ -274,9 +253,9 @@ SCIP_RETCODE FullTopology::CreateConstraints2(
         SCIP_Real scip_values[values.size()];
         for (int v = 0; v < values.size(); ++v) scip_values[v] = values[v];
         std::stringstream ss;
-        ss << "cons_2_" << src_sb << "_" << dst_sb << "_" << vs;
+        ss << "cons_2_" << src_idx << "_" << dst_idx << "_" << sw;
         int lrhs;
-        if ((vs == dst_sb) || (vs == src_sb)) lrhs = 1;
+        if ((sw == src_sw) || (sw == dst_sw)) lrhs = 1;
         else lrhs = 0;
         SCIP_CALL(SCIPcreateConsBasicLinear(scip,
                                             &cons_2[cnt], // constraint
@@ -296,7 +275,7 @@ SCIP_RETCODE FullTopology::CreateConstraints2(
 
 // add constraints for (3)
 // integer requirement for the split
-SCIP_RETCODE FullTopology::CreateConstraints3(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints3(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_3,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &f,
@@ -349,7 +328,7 @@ SCIP_RETCODE FullTopology::CreateConstraints3(
 }
 
 // add constraints for (4)
-SCIP_RETCODE FullTopology::CreateConstraints4(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints4(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_4,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &x,
@@ -419,7 +398,7 @@ SCIP_RETCODE FullTopology::CreateConstraints4(
 }
 
 // add constraints for (5)
-SCIP_RETCODE FullTopology::CreateConstraints5(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints5(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_5,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
@@ -460,7 +439,7 @@ SCIP_RETCODE FullTopology::CreateConstraints5(
 }
 
 // add constraints for (5)
-SCIP_RETCODE FullTopology::CreateConstraints5_modified(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints5_modified(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_5,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
@@ -499,22 +478,57 @@ SCIP_RETCODE FullTopology::CreateConstraints5_modified(
 }
 
 // add constraints for (6)
-SCIP_RETCODE FullTopology::CreateConstraints6(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints6(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_6,
   std::vector<std::vector<std::vector<SCIP_VAR *>>> &f,
   std::vector<std::vector<SCIP_VAR *>> &b) {
   int cnt = 0;
-  for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
-    for (int l = 0; l < links_.size(); ++l) {
-
+  for (int dst_idx = 0; dst_idx < dst_sw_group.size(); ++dst_idx) {
+    for (int sw : int_sw_group) {
+      cons_6.emplace_back((SCIP_CONS *) nullptr); // add constraint
+      std::vector<SCIP_VAR *> vars;
+      std::vector<SCIP_Real> values;
+      for (int l : per_switch_links_[sw]) {
+        if (std::find(link_group.begin(), link_group.end(), l) == link_group.end())
+          continue;
+        if (links_[l].dst_sw_gid == sw) {
+          for (int src_idx = 0; src_idx < src_sw_group.size(); ++src_idx) {
+            if ((src_idx == dst_idx) && (wcmp::problem_scope>1)) continue;
+            vars.push_back(f[src_idx][dst_idx][l]);
+            values.push_back(-traffic_matrix_[src_idx * numSbPerDcn + dst_idx]);
+          }
+        }
+        for (int src_idx = 0; src_idx < src_sw_group.size(); ++src_idx) {
+          if ((src_idx == dst_idx) && (wcmp::problem_scope>1)) continue;
+          vars.push_back(b[dst_idx][sw]);
+          values.push_back(-traffic_matrix_[src_idx * numSbPerDcn + dst_idx]);
+        }
+      }
+      // add constraints
+      SCIP_VAR *scip_vars[vars.size()];
+      for (int v = 0; v < vars.size(); ++v) scip_vars[v] = vars[v];
+      SCIP_Real scip_values[values.size()];
+      for (int v = 0; v < values.size(); ++v) scip_values[v] = values[v];
+      std::stringstream ss;
+      ss << "cons_6_" << dst_idx << "_" << sw;
+      SCIP_CALL(SCIPcreateConsBasicLinear(scip,
+                                          &cons_6[cnt], // constraint
+                                          ss.str().c_str(), // name
+                                          vars.size(), // how many variables
+                                          scip_vars, // array of pointers to various variables
+                                          scip_values, // array of values of the coefficients of corresponding variables
+                                          0, // LHS of the constraint
+                                          infinity)); // RHS of the constraint
+      SCIP_CALL(SCIPaddCons(scip, cons_6[cnt]));
+      ++cnt;
     }
   }
   return SCIP_OKAY;
 }
 
 // set the constraint: link utilization < u
-SCIP_RETCODE FullTopology::CreateConstraints9(
+SCIP_RETCODE FullTopology::ArcILPCreateConstraints9(
   SCIP *scip,
   std::vector<SCIP_CONS *> &cons_9,
   SCIP_VAR *&u,
@@ -562,7 +576,7 @@ SCIP_RETCODE FullTopology::CreateConstraints9(
 }
 
 // find the best routing policy in the DCN level
-SCIP_RETCODE FullTopology::FindBestDcnRouting_ILP() {
+SCIP_RETCODE FullTopology::FindBestDcnRoutingArcILP() {
   SCIP *scip = nullptr;
   SCIP_CALL(SCIPcreate(&scip)); // create the SCIP environment
 
@@ -576,57 +590,62 @@ SCIP_RETCODE FullTopology::FindBestDcnRouting_ILP() {
   SCIP_RETCODE ret;
 
   SCIP_VAR *u; // MLU
-  ret = CreateVariableGoal(scip, u);
+  ret = ArcILPCreateVariableGoal(scip, u);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable u is wrong.";
   else std::cout << "Variable u created." << std::endl;
 
   std::vector<std::vector<std::vector<SCIP_VAR *>>> f; // initialize the variables
-  ret = CreateVariableF(scip, f);
+  ret = ArcILPCreateVariableF(scip, f);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable f is wrong.";
   else std::cout << "Variable f created." << std::endl;
 
   std::vector<std::vector<std::vector<SCIP_VAR *>>> x; // initialize the variables
-  ret = CreateVariableX(scip, x);
+  ret = ArcILPCreateVariableX(scip, x);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable x is wrong.";
   else std::cout << "Variable x created." << std::endl;
 
   std::vector<std::vector<std::vector<SCIP_VAR *>>> y; // initialize the variables
-  ret = CreateVariableY(scip, y);
+  ret = ArcILPCreateVariableY(scip, y);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable y is wrong.";
   else std::cout << "Variable y created." << std::endl;
 
   std::vector<std::vector<SCIP_VAR *>> b; // initialize the variables
-  ret = CreateVariableB(scip, b);
+  ret = ArcILPCreateVariableB(scip, b);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable b is wrong.";
   else std::cout << "Variable b created." << std::endl;
 
   std::vector<SCIP_CONS *> cons_1;
-  ret = CreateConstraints1(scip, cons_1, f);
+  ret = ArcILPCreateConstraints1(scip, cons_1, f);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The equal constraints is wrong.";
   else std::cout << "Constraints 1 created." << std::endl;
 
   std::vector<SCIP_CONS *> cons_2;
-  ret = CreateConstraints2(scip, cons_2, f);
+  ret = ArcILPCreateConstraints2(scip, cons_2, f);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The link constraints is wrong.";
   else std::cout << "Constraints 2 created" << std::endl;
 
   std::vector<SCIP_CONS *> cons_3;
-  ret = CreateConstraints3(scip, cons_3, f, x);
+  ret = ArcILPCreateConstraints3(scip, cons_3, f, x);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The link constraints is wrong.";
   else std::cout << "Constraints 3 created" << std::endl;
 
   std::vector<SCIP_CONS *> cons_4;
-  ret = CreateConstraints4(scip, cons_4, x, y);
+  ret = ArcILPCreateConstraints4(scip, cons_4, x, y);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The link constraints is wrong.";
   else std::cout << "Constraints 4 created" << std::endl;
 
   std::vector<SCIP_CONS *> cons_5;
-  ret = CreateConstraints5_modified(scip, cons_5, y, b);
+  ret = ArcILPCreateConstraints5(scip, cons_5, y, b);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The link constraints is wrong.";
   else std::cout << "Constraints 5 created" << std::endl;
 
+  std::vector<SCIP_CONS *> cons_6;
+  ret = ArcILPCreateConstraints6(scip, cons_6, y, b);
+  if (ret != SCIP_OKAY) LOG(ERROR) << "The link constraints is wrong.";
+  else std::cout << "Constraints 6 created" << std::endl;
+
   std::vector<SCIP_CONS *> cons_9;
-  ret = CreateConstraints9(scip, cons_9, u, f);
+  ret = ArcILPCreateConstraints9(scip, cons_9, u, f);
   if (ret != SCIP_OKAY) LOG(ERROR) << "The link constraints is wrong.";
   else std::cout << "Constraints 9 created" << std::endl;
 
@@ -646,6 +665,9 @@ SCIP_RETCODE FullTopology::FindBestDcnRouting_ILP() {
     SCIP_CALL(SCIPreleaseCons(scip, &con));
   }
   for (SCIP_CONS *con : cons_5) {
+    SCIP_CALL(SCIPreleaseCons(scip, &con));
+  }
+  for (SCIP_CONS *con : cons_6) {
     SCIP_CALL(SCIPreleaseCons(scip, &con));
   }
   for (SCIP_CONS *con : cons_9) {
@@ -696,14 +718,14 @@ SCIP_RETCODE FullTopology::FindBestDcnRouting_ILP() {
   return SCIP_OKAY;
 }
 
-void FullTopology::ResultAnalysis_ILP() {
+void FullTopology::ArcILPResultAnalysis() {
   // traffic amount of each link
   std::vector<double> links_load = std::vector<double>(links_.size());
   std::cout << "The path with 0 traffic is not printed. " << std::endl;
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
       if (src_sb != dst_sb) {
-        for (int p : per_pair_paths_[src_sb][dst_sb]) {
+        for (int p : per_sb_pair_paths_[src_sb][dst_sb]) {
           // print the traffic amount for each link
           double traffic_amount =
             traffic_matrix_[src_sb * numSbPerDcn + dst_sb] *
@@ -740,7 +762,7 @@ void FullTopology::ResultAnalysis_ILP() {
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
       if (src_sb != dst_sb) {
-        for (int p : per_pair_paths_[src_sb][dst_sb]) {
+        for (int p : per_sb_pair_paths_[src_sb][dst_sb]) {
           int src_sw = paths_[p].src_sw_gid;
           int key = src_sw*numSbPerDcn + dst_sb;
           int link_gid = paths_[p].link_gid_list.front();

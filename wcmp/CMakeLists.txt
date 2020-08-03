@@ -21,12 +21,14 @@ add_executable(wcmp
 #		components/Path.h
 #		components/Switch.cpp
 #		components/Switch.h
-		topology/full/LPSolver.cpp
-		topology/full/ILPSolver.cpp
+		topology/full/PathBasedLPSolver.cpp
+		topology/full/ArcBasedLPSolver.cpp
+		topology/full/PathBasedILPSolver.cpp
+		topology/full/ArcBasedILPSolver.cpp
 		topology/full/FullTopology.cpp
 		topology/full/FullTopology.h
-#		topology/dcnonly/DCNOnlyTopology.cpp
-#		topology/dcnonly/DCNOnlyTopology.h
+		topology/dcnonly/DCNOnlyTopology.cpp
+		topology/dcnonly/DCNOnlyTopology.h
 		topology/DCN.h
 		definitions.h
 		main.cpp)

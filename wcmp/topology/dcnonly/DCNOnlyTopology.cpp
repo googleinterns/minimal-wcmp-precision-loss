@@ -73,6 +73,7 @@ void DCNOnlyTopology::AddLinks() {
             Link tmp_link = {switches_[src].gid,
                              switches_[dst].gid,
                              std::min(test_SBs[src_sb], test_SBs[dst_sb]),
+                             LinkType::dcn,
                              link_gid};
             links_.push_back(tmp_link);
             per_pair_links_[src_sb][dst_sb].push_back(link_gid);
@@ -148,8 +149,7 @@ DCNOnlyTopology::DCNOnlyTopology() {
   // initial traffic matrix
   traffic::Trace trace;
   traffic_matrix_ = trace.GenerateTrafficMatrix(numSbPerDcn,
-                                                traffic::TrafficPattern::kRandom,
-                                                "test");
+                                                traffic::TrafficPattern::kRandom);
 
   // add switches
   AddSwitches();

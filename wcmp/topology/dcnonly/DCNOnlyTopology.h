@@ -20,12 +20,13 @@ const int numS2PerMb = 8; // 8
 const int numS3PerMb = 8; // 8
 
 const int numS2PerSb = numS3PerMb * numMbPerSb;
+const int numLinkPerSb = 256;
 
 const double infinity = 1e+20;
 
 // The DCN network with only the top level, namely, DCN level
 // The initialization of this class will record the paths information as well
-// The ResultAnalysis function is used to print out the information
+// The PathLPResultAnalysis function is used to print out the information
 // The SCIP result is stored in the scip_result
 class DCNOnlyTopology : public dcn::DCN {
 

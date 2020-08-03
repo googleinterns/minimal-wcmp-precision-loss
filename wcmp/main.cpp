@@ -12,19 +12,27 @@ int main() {
 	// initial glog
 	google::InitGoogleLogging("scip");
 
-	// initialize the DCN network
-	wcmp::topo::full::FullTopology network;
-
+  // initialize the DCN network
+  wcmp::topo::full::FullTopology network;
 	network.PrintAllLinks();
 
 	// find the best routing policy
-	SCIP_RETCODE retcode = network.FindBestDcnRouting_ILP();
+  SCIP_RETCODE retcode;
+	if (wcmp::arc_based && wcmp::integer_LP)
+	  retcode = network.FindBestDcnRoutingArcILP();
+	else if (!wcmp::arc_based && wcmp::integer_LP)
+    retcode = network.FindBestDcnRoutingPathILP();
+  else if (wcmp::arc_based && !wcmp::integer_LP)
+    retcode = network.FindBestDcnRoutingArcLP();
+  else
+    retcode = network.FindBestDcnRoutingPathLP();
+
 	if (retcode != SCIP_OKAY) {
 		LOG(ERROR) << "The SCIP program is wrong.";
 	}
 //
 //	// analysis the result
-//	network.ResultAnalysis();
+//	network.PathLPResultAnalysis();
 
 	return 0;
 }
