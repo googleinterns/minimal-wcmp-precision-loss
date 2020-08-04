@@ -16,6 +16,8 @@ int main() {
   wcmp::topo::full::FullTopology network;
 	network.PrintAllLinks();
 
+	network.SetProblemScope(wcmp::problem_scope);
+
 	// find the best routing policy
   SCIP_RETCODE retcode;
 	if (wcmp::arc_based && wcmp::integer_LP)
@@ -30,9 +32,17 @@ int main() {
 	if (retcode != SCIP_OKAY) {
 		LOG(ERROR) << "The SCIP program is wrong.";
 	}
-//
-//	// analysis the result
-//	network.PathLPResultAnalysis();
+
+	// analysis the result
+  if (wcmp::arc_based && wcmp::integer_LP)
+    network.ArcILPResultAnalysis();
+  else if (!wcmp::arc_based && wcmp::integer_LP)
+    network.PathILPResultAnalysis();
+  else if (wcmp::arc_based && !wcmp::integer_LP)
+    network.ArcLPResultAnalysis();
+  else
+    network.PathLPResultAnalysis();
+
 
 	return 0;
 }

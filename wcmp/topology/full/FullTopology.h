@@ -78,9 +78,6 @@ private:
   // Return: all the direct dcn links between the src and dst
   std::vector<int> FindLinks(int src_sb, int dst_sb);
 
-  // set the problem scope
-  void SetProblemScope(int scope);
-
   // functions to create the Path-based LP model
   SCIP_RETCODE PathLPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u);
   SCIP_RETCODE PathLPCreateVariableWeight(SCIP *scip,
@@ -198,10 +195,14 @@ public:
   // We will never find path or find links in the rest of the code
   FullTopology();
 
+  // print functions
   void PrintSwitch(int sw);
   void PrintLink(int l);
   void PrintAllLinks();
   void PrintPath(const Path &path);
+
+  // set the problem scope
+  void SetProblemScope(int scope);
 
   // Use SCIP to find the best traffic allocation method,
   // follows the LP model on the document.
@@ -216,6 +217,9 @@ public:
   void PathILPResultAnalysis();
   void ArcILPResultAnalysis();
 
+  // Transfer the original group weight to integer group weight
+  std::vector<int> OriginMethod(std::vector<int> weights);
+  std::vector<int> NewMethod(std::vector<int> weights);
 };
 
 } // namespace full

@@ -20,7 +20,7 @@ SCIP_RETCODE FullTopology::PathLPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u) {
                                infinity, // upper bound
                                1.0, // objective
                                SCIP_VARTYPE_CONTINUOUS)); // variable type
-  SCIP_CALL(SCIPaddVar(scip, u));  //Adding the variable
+  SCIP_CALL(SCIPaddVar(scip, u));  // Adding the variable
   return SCIP_OKAY;
 }
 
@@ -302,8 +302,17 @@ void FullTopology::PathLPResultAnalysis() {
     if (sum_weight <= 0) continue;
     std::cout << "Group Assignment for Switch " << src_sw << " -> "
               << "SuperBlock " << dst_sb << " " << std::endl;
+    std::vector<int> double_weight;
+    std::vector<int> integer_weight;
     for (iter=weights.begin(); iter!=weights.end(); ++iter) {
       std::cout << "link " << iter->first << ": " << iter->second/sum_weight*127 << std::endl;
+      double_weight.push_back(round(iter->second*1000));
+    }
+    integer_weight = OriginMethod(double_weight);
+    int cnt = 0;
+    for (iter=weights.begin(); iter!=weights.end(); ++iter) {
+      std::cout << "link " << iter->first << ": " << integer_weight[cnt] << std::endl;
+      ++cnt;
     }
   }
 }

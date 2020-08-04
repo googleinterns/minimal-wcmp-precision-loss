@@ -22,9 +22,9 @@ const int maxGroupSize = 256;
 const double intraDomainBandwidth = 100;
 const double maxBandwidth = 999999;
 
-const bool arc_based = true; // default: path-based
-const bool integer_LP = true; // default: LP
-const int problem_scope = 0; // 0: S3-S3, 1: S2-S2, 2: S1-S3 3: S1-S2 (intra-domain)
+const bool arc_based = false; // default: path-based
+const bool integer_LP = false; // default: LP
+const int problem_scope = 0; // 0: S3-S3, 1: S2-S2, 2: S1-S3 (intra-domain) 3: S1-S2 (intra-domain)
 
 enum class SwitchType {
   unknown = 0,
