@@ -428,6 +428,7 @@ void FullTopology::SetProblemScope(int scope) {
   }
 }
 
+// get the group memory occupation
 int GroupSize(std::vector<int> &weights) {
   int total_size = 0;
   for (int weight : weights) {
@@ -436,6 +437,7 @@ int GroupSize(std::vector<int> &weights) {
   return total_size;
 }
 
+// helper function for weight reduction
 double CalcDelta(std::vector<int> &weights, std::vector<int> &new_weights) {
   double max_delta = 0;
   int total_size = GroupSize(weights);
@@ -449,6 +451,7 @@ double CalcDelta(std::vector<int> &weights, std::vector<int> &new_weights) {
   return max_delta;
 }
 
+// helper function for weight reduction
 int ChoosePortToUpdate(std::vector<int> &weights, std::vector<int> &new_weights) {
   double min_oversub = infinity;
   int index = -1;
@@ -464,6 +467,7 @@ int ChoosePortToUpdate(std::vector<int> &weights, std::vector<int> &new_weights)
   return index;
 }
 
+// the weight reduction function used in WCMP (eurosys)
 std::vector<int> FullTopology::OriginMethod(std::vector<int> weights) {
   std::vector<int> new_weights;
   for (int weight : weights) {
@@ -508,6 +512,7 @@ std::vector<int> FullTopology::OriginMethod(std::vector<int> weights) {
   return results;
 }
 
+// the new weight reduction function
 std::vector<int> FullTopology::NewMethod(std::vector<int> weights) {
 
 }

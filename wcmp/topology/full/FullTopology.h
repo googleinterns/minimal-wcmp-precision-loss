@@ -174,10 +174,6 @@ private:
                                         std::vector<SCIP_CONS *> &cons_5,
                                         std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
                                         std::vector<std::vector<SCIP_VAR *>> &b);
-  SCIP_RETCODE ArcILPCreateConstraints5_modified(SCIP *scip,
-                                                 std::vector<SCIP_CONS *> &cons_5,
-                                                 std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
-                                                 std::vector<std::vector<SCIP_VAR *>> &b);
   SCIP_RETCODE ArcILPCreateConstraints6(SCIP *scip,
                                         std::vector<SCIP_CONS *> &cons_6,
                                         std::vector<std::vector<std::vector<SCIP_VAR *>>> &f,
