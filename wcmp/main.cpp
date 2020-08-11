@@ -13,8 +13,8 @@
 #include "topology/full/FullTopology.h"
 
 int main() {
-	// initial glog
-	google::InitGoogleLogging("scip");
+  // initial glog
+  google::InitGoogleLogging("scip");
 
   // initial traffic matrix
   wcmp::traffic::Trace trace;
@@ -27,10 +27,10 @@ int main() {
     wcmp::solver::ArcBasedLPSolver solver(network, traffic_matrix);
     SCIP_RETCODE retcode = solver.FindBestRouting();
   }
-	else if (!wcmp::arc_based && wcmp::integer_LP) {
+  else if (!wcmp::arc_based && wcmp::integer_LP) {
     wcmp::solver::PathBasedLPSolver solver(network, traffic_matrix);
     SCIP_RETCODE retcode = solver.FindBestRouting();
-	}
+  }
   else if (wcmp::arc_based && !wcmp::integer_LP) {
     wcmp::solver::ArcBasedILPSolver solver(network, traffic_matrix);
     SCIP_RETCODE retcode = solver.FindBestRouting();
@@ -40,5 +40,5 @@ int main() {
     SCIP_RETCODE retcode = solver.FindBestRouting();
   }
 
-	return 0;
+  return 0;
 }
