@@ -9,7 +9,6 @@
 #include <string>
 #include "Trace.h"
 #include "trace.pb.h"
-//#include "trace.pb.h"
 
 namespace wcmp {
 namespace traffic {
@@ -31,7 +30,7 @@ SbTrafficMatrix GenerateRandomMatrix(int num_sb) {
   // initial random
   std::random_device rd;
   std::mt19937 mt(rd());
-  std::uniform_real_distribution<double> dist(0.0, 10.0);
+  std::uniform_real_distribution<double> dist(0.0, 40.0);
   // generate matrix
   SbTrafficMatrix matrix = {};
   for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
@@ -119,12 +118,11 @@ Trace::GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern) {
   return matrix;
 }
 
-void Trace::ExportTrafficTrace(int num_sb, TrafficPattern traffic_pattern,
+void Trace::ExportTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
                                std::string output) {
   SbTrafficMatrix matrix = GenerateTrafficMatrix(num_sb, traffic_pattern);
   // export the result if the output field is not "none"
   if (output != "none") {
-    // test code
     // set the output file
     const char *filename = output.c_str();
     std::fstream fd(filename);

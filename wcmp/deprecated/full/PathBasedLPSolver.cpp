@@ -27,25 +27,25 @@ SCIP_RETCODE FullTopology::PathLPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u) {
 // create variable for weights
 SCIP_RETCODE FullTopology::PathLPCreateVariableWeight(SCIP *scip,
                                                       std::vector<std::vector<std::vector<SCIP_VAR *>>> &x) {
-  x = std::vector<std::vector<std::vector<SCIP_VAR *>>>(numSbPerDcn,
+  x = std::vector<std::vector<std::vector<SCIP_VAR *>>>(src_sw_group.size(),
                                                         std::vector<std::vector<SCIP_VAR *>>(
-                                                          numSbPerDcn));
-  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb) {
-    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
-      if (src_sb == dst_sb) continue;
-      for (int p = 0; p < per_sb_pair_paths_[src_sb][dst_sb].size(); ++p) {
-        x[src_sb][dst_sb].emplace_back((SCIP_VAR *) nullptr);
+                                                          dst_sw_group.size()));
+  for (int src_idx = 0; src_idx < src_sw_group.size(); ++src_idx) {
+    for (int dst_idx = 0; dst_idx < dst_sw_group.size(); ++dst_idx) {
+      if (src_sw_group[src_idx] == dst_sw_group[dst_idx]) continue;
+      for (int p = 0; p < per_sb_pair_paths_[src_idx][dst_idx].size(); ++p) {
+        x[src_idx][dst_idx].emplace_back((SCIP_VAR *) nullptr);
         std::stringstream ss;
-        ss << "x_" << src_sb << "_" << dst_sb << "_" << p;
+        ss << "x_" << src_idx << "_" << dst_idx << "_" << p;
         SCIP_CALL(SCIPcreateVarBasic(scip,
-                                     &x[src_sb][dst_sb][p], // variable
+                                     &x[src_idx][dst_idx][p], // variable
                                      ss.str().c_str(), // name
                                      0.0, // lower bound
                                      1.0, // upper bound
                                      0.0, // objective
                                      SCIP_VARTYPE_CONTINUOUS)); // variable type
         SCIP_CALL(SCIPaddVar(scip,
-                             x[src_sb][dst_sb][p]));  //Adding the variable
+                             x[src_idx][dst_idx][p]));  //Adding the variable
       }
     }
   }
@@ -128,7 +128,7 @@ SCIP_RETCODE FullTopology::PathLPCreateConstraintsLinkUtilizationBound(
   return SCIP_OKAY;
 }
 
-// find the best routing policy in the DCN level
+// find the best routing policy in the AbstractTopology level
 SCIP_RETCODE FullTopology::FindBestDcnRoutingPathLP() {
   SCIP *scip = nullptr;
   SCIP_CALL(SCIPcreate(&scip)); // create the SCIP environment
@@ -229,7 +229,7 @@ void FullTopology::PathLPResultAnalysis() {
           if (traffic_amount > 0) {
             std::cout << traffic_amount << " Gbps of demand from u"
                       << src_sb << " -> u" << dst_sb
-                      << " is placed on DCN link "
+                      << " is placed on AbstractTopology link "
                       << links_[paths_[p].link_gid_list.front()].gid
                       << std::endl;
           }

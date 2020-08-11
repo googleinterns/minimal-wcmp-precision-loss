@@ -16,11 +16,11 @@
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_trace_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto;
 class Matrix_TrafficMapEntry_DoNotUseDefaultTypeInternal {
- public:
+public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Matrix_TrafficMapEntry_DoNotUse> _instance;
 } _Matrix_TrafficMapEntry_DoNotUse_default_instance_;
 class MatrixDefaultTypeInternal {
- public:
+public:
   ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<Matrix> _instance;
 } _Matrix_default_instance_;
 static void InitDefaultsscc_info_Matrix_trace_2eproto() {
@@ -35,8 +35,8 @@ static void InitDefaultsscc_info_Matrix_trace_2eproto() {
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Matrix_trace_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Matrix_trace_2eproto}, {
-      &scc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto.base,}};
+  {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_Matrix_trace_2eproto}, {
+    &scc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto.base,}};
 
 static void InitDefaultsscc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -49,7 +49,7 @@ static void InitDefaultsscc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto()
 }
 
 ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto}, {}};
+  {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_Matrix_TrafficMapEntry_DoNotUse_trace_2eproto}, {}};
 
 static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_trace_2eproto[2];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_trace_2eproto = nullptr;
@@ -87,7 +87,7 @@ const char descriptor_table_protodef_trace_2eproto[] PROTOBUF_SECTION_VARIABLE(p
   " \003(\0132\027.Matrix.TrafficMapEntry\0321\n\017Traffic"
   "MapEntry\022\013\n\003key\030\001 \001(\005\022\r\n\005value\030\002 \001(\001:\0028\001"
   "b\006proto3"
-  ;
+;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_trace_2eproto_deps[1] = {
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_trace_2eproto_sccs[2] = {
@@ -109,7 +109,7 @@ static bool dynamic_init_dummy_trace_2eproto = (static_cast<void>(::PROTOBUF_NAM
 
 Matrix_TrafficMapEntry_DoNotUse::Matrix_TrafficMapEntry_DoNotUse() {}
 Matrix_TrafficMapEntry_DoNotUse::Matrix_TrafficMapEntry_DoNotUse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-    : SuperType(arena) {}
+  : SuperType(arena) {}
 void Matrix_TrafficMapEntry_DoNotUse::MergeFrom(const Matrix_TrafficMapEntry_DoNotUse& other) {
   MergeFromInternal(other);
 }
@@ -117,7 +117,7 @@ void Matrix_TrafficMapEntry_DoNotUse::MergeFrom(const Matrix_TrafficMapEntry_DoN
   return GetMetadataStatic();
 }
 void Matrix_TrafficMapEntry_DoNotUse::MergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::Message& other) {
+  const ::PROTOBUF_NAMESPACE_ID::Message& other) {
   ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom(other);
 }
 
@@ -127,12 +127,12 @@ void Matrix_TrafficMapEntry_DoNotUse::MergeFrom(
 void Matrix::InitAsDefaultInstance() {
 }
 class Matrix::_Internal {
- public:
+public:
 };
 
 Matrix::Matrix(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena),
-  traffic_map_(arena) {
+    traffic_map_(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
   // @@protoc_insertion_point(arena_constructor:Matrix)
@@ -155,7 +155,7 @@ Matrix::~Matrix() {
 }
 
 void Matrix::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
+    GOOGLE_DCHECK(GetArena() == nullptr);
 }
 
 void Matrix::ArenaDtor(void* object) {
@@ -204,29 +204,29 @@ const char* Matrix::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
         } else goto handle_unusual;
         continue;
       default: {
-      handle_unusual:
+        handle_unusual:
         if ((tag & 7) == 4 || tag == 0) {
           ctx->SetLastTag(tag);
           goto success;
         }
         ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
+                                _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+                                ptr, ctx);
         CHK_(ptr != nullptr);
         continue;
       }
     }  // switch
   }  // while
-success:
+  success:
   return ptr;
-failure:
+  failure:
   ptr = nullptr;
   goto success;
 #undef CHK_
 }
 
 ::PROTOBUF_NAMESPACE_ID::uint8* Matrix::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:Matrix)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
@@ -234,19 +234,19 @@ failure:
   // map<int32, double> traffic_map = 1;
   if (!this->_internal_traffic_map().empty()) {
     typedef ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >::const_pointer
-        ConstPtr;
+      ConstPtr;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::SortItem< ::PROTOBUF_NAMESPACE_ID::int32, ConstPtr > SortItem;
     typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByFirstField<SortItem> Less;
 
     if (stream->IsSerializationDeterministic() &&
         this->_internal_traffic_map().size() > 1) {
       ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_traffic_map().size()]);
+        new SortItem[this->_internal_traffic_map().size()]);
       typedef ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >::size_type size_type;
       size_type n = 0;
       for (::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >::const_iterator
-          it = this->_internal_traffic_map().begin();
-          it != this->_internal_traffic_map().end(); ++it, ++n) {
+             it = this->_internal_traffic_map().begin();
+           it != this->_internal_traffic_map().end(); ++it, ++n) {
         items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
       }
       ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
@@ -255,8 +255,8 @@ failure:
       }
     } else {
       for (::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >::const_iterator
-          it = this->_internal_traffic_map().begin();
-          it != this->_internal_traffic_map().end(); ++it) {
+             it = this->_internal_traffic_map().begin();
+           it != this->_internal_traffic_map().end(); ++it) {
         target = Matrix_TrafficMapEntry_DoNotUse::Funcs::InternalSerialize(1, it->first, it->second, target, stream);
       }
     }
@@ -264,7 +264,7 @@ failure:
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+      _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:Matrix)
   return target;
@@ -280,16 +280,16 @@ size_t Matrix::ByteSizeLong() const {
 
   // map<int32, double> traffic_map = 1;
   total_size += 1 *
-      ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_traffic_map_size());
+                ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_traffic_map_size());
   for (::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >::const_iterator
-      it = this->_internal_traffic_map().begin();
-      it != this->_internal_traffic_map().end(); ++it) {
+         it = this->_internal_traffic_map().begin();
+       it != this->_internal_traffic_map().end(); ++it) {
     total_size += Matrix_TrafficMapEntry_DoNotUse::Funcs::ByteSizeLong(it->first, it->second);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
+      _internal_metadata_, total_size, &_cached_size_);
   }
   int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
@@ -298,22 +298,22 @@ size_t Matrix::ByteSizeLong() const {
 
 void Matrix::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
 // @@protoc_insertion_point(generalized_merge_from_start:Matrix)
-  GOOGLE_DCHECK_NE(&from, this);
+    GOOGLE_DCHECK_NE(&from, this);
   const Matrix* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Matrix>(
-          &from);
+    ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<Matrix>(
+      &from);
   if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:Matrix)
+    // @@protoc_insertion_point(generalized_merge_from_cast_fail:Matrix)
     ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:Matrix)
+    // @@protoc_insertion_point(generalized_merge_from_cast_success:Matrix)
     MergeFrom(*source);
   }
 }
 
 void Matrix::MergeFrom(const Matrix& from) {
 // @@protoc_insertion_point(class_specific_merge_from_start:Matrix)
-  GOOGLE_DCHECK_NE(&from, this);
+    GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;

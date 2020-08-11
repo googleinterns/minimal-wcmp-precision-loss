@@ -25,7 +25,7 @@ enum class TrafficPattern {
 // value (double): the aggregated egress demand of the corresponding superblock pair in Gbps
 using SbTrafficMatrix = std::unordered_map<int, double>;
 
-// Generate the Trace for DCN network
+// Generate the Trace for AbstractTopology network
 // with 5 patterns:
 // sparse: only one pair of SuperBlock is transmitting
 // permutation: each SuperBlock is communicating with only one other SuperBlock
@@ -36,20 +36,19 @@ class Trace {
 
 public:
   // constructor function
-  Trace() = default;;
+  Trace() = default;
 
   // matrix generation function for sparse method
-  SbTrafficMatrix
-  GenerateTrafficMatrix(int num_sb, TrafficPattern traffic_pattern);
+  SbTrafficMatrix GenerateTrafficMatrix(int num_sb,
+    TrafficPattern traffic_pattern);
 
   // export traffic trace
   void ExportTrafficMatrix(int num_sb, TrafficPattern traffic_pattern,
     std::string output);
+
   // import traffic trace
   SbTrafficMatrix ImportTrafficTrace(std::string input);
 
-  void ExportTrafficTrace(int num_sb, TrafficPattern traffic_pattern,
-                          std::string output);
 };
 
 } // namespace traffic

@@ -4,7 +4,11 @@
 
 #include <iostream>
 #include <glog/logging.h>
-#include "topology/DCN.h"
+#include "solver/ArcBasedLPSolver.h"
+#include "solver/ArcBasedILPSolver.h"
+#include "solver/PathBasedLPSolver.h"
+#include "solver/PathBasedILPSolver.h"
+#include "topology/AbstractTopology.h"
 #include "topology/dcnonly/DCNOnlyTopology.h"
 #include "topology/full/FullTopology.h"
 
@@ -12,37 +16,29 @@ int main() {
 	// initial glog
 	google::InitGoogleLogging("scip");
 
-  // initialize the DCN network
-  wcmp::topo::full::FullTopology network;
-	network.PrintAllLinks();
+  // initial traffic matrix
+  wcmp::traffic::Trace trace;
+  std::unordered_map<int, double> traffic_matrix = trace.GenerateTrafficMatrix(80,
+      wcmp::traffic::TrafficPattern::kSparse);
+  wcmp::topo::dcnonly::DCNOnlyTopology network;
 
-	network.SetProblemScope(wcmp::problem_scope);
-
-	// find the best routing policy
   SCIP_RETCODE retcode;
-	if (wcmp::arc_based && wcmp::integer_LP)
-	  retcode = network.FindBestDcnRoutingArcILP();
-	else if (!wcmp::arc_based && wcmp::integer_LP)
-    retcode = network.FindBestDcnRoutingPathILP();
-  else if (wcmp::arc_based && !wcmp::integer_LP)
-    retcode = network.FindBestDcnRoutingArcLP();
-  else
-    retcode = network.FindBestDcnRoutingPathLP();
-
-	if (retcode != SCIP_OKAY) {
-		LOG(ERROR) << "The SCIP program is wrong.";
+  if (wcmp::arc_based && wcmp::integer_LP) {
+    wcmp::solver::ArcBasedLPSolver solver(network, traffic_matrix);
+    SCIP_RETCODE retcode = solver.FindBestRouting();
+  }
+	else if (!wcmp::arc_based && wcmp::integer_LP) {
+    wcmp::solver::PathBasedLPSolver solver(network, traffic_matrix);
+    SCIP_RETCODE retcode = solver.FindBestRouting();
 	}
-
-	// analysis the result
-  if (wcmp::arc_based && wcmp::integer_LP)
-    network.ArcILPResultAnalysis();
-  else if (!wcmp::arc_based && wcmp::integer_LP)
-    network.PathILPResultAnalysis();
-  else if (wcmp::arc_based && !wcmp::integer_LP)
-    network.ArcLPResultAnalysis();
-  else
-    network.PathLPResultAnalysis();
-
+  else if (wcmp::arc_based && !wcmp::integer_LP) {
+    wcmp::solver::ArcBasedILPSolver solver(network, traffic_matrix);
+    SCIP_RETCODE retcode = solver.FindBestRouting();
+  }
+  else if (!wcmp::arc_based && !wcmp::integer_LP) {
+    wcmp::solver::PathBasedILPSolver solver(network, traffic_matrix);
+    SCIP_RETCODE retcode = solver.FindBestRouting();
+  }
 
 	return 0;
 }

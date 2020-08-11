@@ -253,7 +253,7 @@ SCIP_RETCODE FullTopology::ArcLPCreateConstraints9(
   return SCIP_OKAY;
 }
 
-// find the best routing policy in the DCN level
+// find the best routing policy in the AbstractTopology level
 SCIP_RETCODE FullTopology::FindBestDcnRoutingArcLP() {
   SCIP *scip = nullptr;
   SCIP_CALL(SCIPcreate(&scip)); // create the SCIP environment
@@ -347,7 +347,7 @@ void FullTopology::ArcLPResultAnalysis() {
           if (traffic_amount > 0) {
             std::cout << traffic_amount << " Gbps of demand from u"
                       << src_sb << " -> u" << dst_sb
-                      << " is placed on DCN link "
+                      << " is placed on AbstractTopology link "
                       << links_[paths_[p].link_gid_list.front()].gid
                       << std::endl;
           }

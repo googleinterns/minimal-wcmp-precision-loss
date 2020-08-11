@@ -47,11 +47,11 @@ PROTOBUF_NAMESPACE_CLOSE
 // Internal implementation detail -- do not use these members.
 struct TableStruct_trace_2eproto {
   static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTableField entries[]
-    PROTOBUF_SECTION_VARIABLE(protodesc_cold);
+  PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
-    PROTOBUF_SECTION_VARIABLE(protodesc_cold);
+  PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[2]
-    PROTOBUF_SECTION_VARIABLE(protodesc_cold);
+  PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
   static const ::PROTOBUF_NAMESPACE_ID::uint32 offsets[];
@@ -70,13 +70,13 @@ PROTOBUF_NAMESPACE_CLOSE
 
 // ===================================================================
 
-class Matrix_TrafficMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_TrafficMapEntry_DoNotUse, 
-    ::PROTOBUF_NAMESPACE_ID::int32, double,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
-    0 > {
+class Matrix_TrafficMapEntry_DoNotUse : public ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_TrafficMapEntry_DoNotUse,
+  ::PROTOBUF_NAMESPACE_ID::int32, double,
+  ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+  ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
+  0 > {
 public:
-  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_TrafficMapEntry_DoNotUse, 
+  typedef ::PROTOBUF_NAMESPACE_ID::internal::MapEntry<Matrix_TrafficMapEntry_DoNotUse,
     ::PROTOBUF_NAMESPACE_ID::int32, double,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
@@ -89,20 +89,20 @@ public:
   static bool ValidateValue(void*) { return true; }
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& other) final;
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
+private:
   static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
     ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_trace_2eproto);
     return ::descriptor_table_trace_2eproto.file_level_metadata[0];
   }
 
-  public:
+public:
 };
 
 // -------------------------------------------------------------------
 
 class Matrix PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Matrix) */ {
- public:
+  public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Matrix) */ {
+public:
   inline Matrix() : Matrix(nullptr) {}
   virtual ~Matrix();
 
@@ -139,7 +139,7 @@ class Matrix PROTOBUF_FINAL :
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
   static inline const Matrix* internal_default_instance() {
     return reinterpret_cast<const Matrix*>(
-               &_Matrix_default_instance_);
+      &_Matrix_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     1;
@@ -157,7 +157,7 @@ class Matrix PROTOBUF_FINAL :
   }
   void UnsafeArenaSwap(Matrix* other) {
     if (other == this) return;
-    GOOGLE_DCHECK(GetArena() == other->GetArena());
+      GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
   }
 
@@ -180,10 +180,10 @@ class Matrix PROTOBUF_FINAL :
   size_t ByteSizeLong() const final;
   const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
   ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
   int GetCachedSize() const final { return _cached_size_.Get(); }
 
-  private:
+private:
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
@@ -192,21 +192,21 @@ class Matrix PROTOBUF_FINAL :
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
     return "Matrix";
   }
-  protected:
+protected:
   explicit Matrix(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  private:
+private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
+public:
 
   ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
+private:
   static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
     ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_trace_2eproto);
     return ::descriptor_table_trace_2eproto.file_level_metadata[kIndexInFileMessages];
   }
 
-  public:
+public:
 
   // nested types ----------------------------------------------------
 
@@ -218,34 +218,34 @@ class Matrix PROTOBUF_FINAL :
   };
   // map<int32, double> traffic_map = 1;
   int traffic_map_size() const;
-  private:
+private:
   int _internal_traffic_map_size() const;
-  public:
+public:
   void clear_traffic_map();
-  private:
+private:
   const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
-      _internal_traffic_map() const;
+  _internal_traffic_map() const;
   ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
-      _internal_mutable_traffic_map();
-  public:
+  _internal_mutable_traffic_map();
+public:
   const ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >&
-      traffic_map() const;
+  traffic_map() const;
   ::PROTOBUF_NAMESPACE_ID::Map< ::PROTOBUF_NAMESPACE_ID::int32, double >*
-      mutable_traffic_map();
+  mutable_traffic_map();
 
   // @@protoc_insertion_point(class_scope:Matrix)
- private:
+private:
   class _Internal;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::MapField<
-      Matrix_TrafficMapEntry_DoNotUse,
-      ::PROTOBUF_NAMESPACE_ID::int32, double,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
-      0 > traffic_map_;
+    Matrix_TrafficMapEntry_DoNotUse,
+    ::PROTOBUF_NAMESPACE_ID::int32, double,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_INT32,
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::TYPE_DOUBLE,
+    0 > traffic_map_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_trace_2eproto;
 };
@@ -255,8 +255,8 @@ class Matrix PROTOBUF_FINAL :
 // ===================================================================
 
 #ifdef __GNUC__
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
 // -------------------------------------------------------------------
 
@@ -292,7 +292,7 @@ Matrix::mutable_traffic_map() {
 }
 
 #ifdef __GNUC__
-  #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif  // __GNUC__
 // -------------------------------------------------------------------
 

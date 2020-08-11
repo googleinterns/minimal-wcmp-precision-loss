@@ -3,7 +3,7 @@
 //
 
 #ifndef WCMP_DEFINITIONS_H
-#define WCMP_MAIN_H
+#define WCMP_DEFINITIONS_H
 
 
 #include <vector>
@@ -17,29 +17,38 @@
 
 namespace wcmp {
 
+// the total amount of memory that can be used on one switch
 const int tableSize = 16384;
+// the maximum size of one WCMP group
 const int maxGroupSize = 256;
+// the intra domain link bandwidth
 const double intraDomainBandwidth = 100;
+// the virtual link bandwidth
 const double maxBandwidth = 999999;
+// the representation of infinity, used in SCIP
+const double infinity = 1e+20; // std::numeric_limits::max()
 
-const bool arc_based = false; // default: path-based
+// whether the solver is arc-based
+const bool arc_based = true; // default: path-based
+// whether the solver is integer LP
 const bool integer_LP = false; // default: LP
-const int problem_scope = 0; // 0: S3-S3, 1: S2-S2, 2: S1-S3 (intra-domain) 3: S1-S2 (intra-domain)
 
 enum class SwitchType {
   unknown = 0,
-  s1 = 1,
-  s2 = 2,
-  s3 = 3,
-  vir = 4,
+  s1 = 1, // s1 switch
+  s2 = 2, // s2 switch
+  s3 = 3, // s3 switch
+  src = 4, // virtual source switch
+  dst = 5, // virtual destination switch
 };
 
 enum class LinkType {
   unknown = 0,
-  up = 1,
-  down = 2,
-  dcn = 3,
-  vir = 4,
+  up = 1, // intra-domain up link
+  down = 2, // intra-domain down link
+  dcn = 3, // dcn link
+  src = 4, // virtual source link
+  dst = 5, // virtual destination link
 };
 
 struct Switch {
@@ -60,11 +69,13 @@ struct Link {
 
 struct Path {
   std::vector<int> link_gid_list;
-  const int src_sw_gid;
-  const int dst_sw_gid;
+  const int source_id;
+  const int destination_id;
   const int per_pair_id;
   const int gid; // global id
 };
+
+class AbstractSolver;
 
 } // namespace wcmp
 #endif //WCMP_DEFINITIONS_H

@@ -11,21 +11,20 @@ namespace wcmp {
 namespace topo {
 namespace full {
 
-static double test_SBs[10] = {100, 100, 40, 40, 200, 100, 40, 100, 200, 200};
+// the bandwidth of one SuperBlock for the DCN links
+static double test_SBs[27] = {40, 100, 200, 40, 100, 200, 40, 100, 200,
+                              40, 100, 200, 40, 100, 200, 40, 100, 200,
+                              40, 100, 200, 40, 100, 200, 40, 100, 200};
 
 // add all the switches to the network
 void FullTopology::AddSwitches() {
   int sw_gid = 0;
-  per_sb_switches_ = std::vector<std::vector<std::vector<int>>>(numSbPerDcn,
-    std::vector<std::vector<int>>(5));
-
   // add s3 switches
   for (int sb=0; sb<numSbPerDcn; ++sb) {
     for (int mb=0; mb<numMbPerSb; ++mb) {
       for (int k = 0; k < numS3PerMb; ++k) {
         Switch tmp_sw = {sb, mb, k, SwitchType::s3, sw_gid};
-        switches_.push_back(tmp_sw);
-        per_sb_switches_[sb][0].push_back(sw_gid);
+        switches_.emplace_back(tmp_sw);
         ++sw_gid;
       }
     }
@@ -35,37 +34,21 @@ void FullTopology::AddSwitches() {
     for (int mb=0; mb<numMbPerSb; ++mb) {
       for (int k = 0; k < numS2PerMb; ++k) {
         Switch tmp_sw = {sb, mb, k, SwitchType::s2, sw_gid};
-        switches_.push_back(tmp_sw);
-        per_sb_switches_[sb][1].push_back(sw_gid);
+        switches_.emplace_back(tmp_sw);
         ++sw_gid;
       }
     }
   }
-  // add s1 switches
+  // add virtual source switch
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    for (int mb=0; mb<numMbPerSb; ++mb) {
-      for (int k = 0; k < numS1PerMb; ++k) {
-        Switch tmp_sw = {sb, mb, k, SwitchType::s1, sw_gid};
-        switches_.push_back(tmp_sw);
-        per_sb_switches_[sb][2].push_back(sw_gid);
-        ++sw_gid;
-      }
-    }
-  }
-  // add virtual S3 switch
-  for (int sb=0; sb<numSbPerDcn; ++sb) {
-    Switch tmp_sw = {sb, -1, -1, SwitchType::vir, sw_gid};
-    switches_.push_back(tmp_sw);
-    s3_virtual_switches_.push_back(sw_gid);
-    per_sb_switches_[sb][3].push_back(sw_gid);
+    Switch tmp_sw = {sb, -1, -1, SwitchType::src, sw_gid};
+    switches_.emplace_back(tmp_sw);
     ++sw_gid;
   }
-  // add virtual S2 switch
+  // add virtual destination switch
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    Switch tmp_sw = {sb, -1, -1, SwitchType::vir, sw_gid};
-    switches_.push_back(tmp_sw);
-    s2_virtual_switches_.push_back(sw_gid);
-    per_sb_switches_[sb][4].push_back(sw_gid);
+    Switch tmp_sw = {sb, -1, -1, SwitchType::dst, sw_gid};
+    switches_.emplace_back(tmp_sw);
     ++sw_gid;
   }
 }
@@ -79,7 +62,7 @@ void FullTopology::AddLinks() {
     std::vector<std::vector<int>>(numS3PerDCN));
   per_switch_links_ = std::vector<std::vector<int>>(switches_.size());
 
-  // add DCN links
+  // add AbstractTopology links
   for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb) {
     for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb) {
       if (src_sb == dst_sb) continue;
@@ -106,19 +89,11 @@ void FullTopology::AddLinks() {
                              std::min(test_SBs[src_sb], test_SBs[dst_sb]),
                              LinkType::dcn,
                              link_gid};
-            links_.push_back(tmp_link);
-            per_sb_pair_links_[src_sb][dst_sb].push_back(link_gid);
-            per_s3_pair_links_[src][dst].push_back(link_gid);
-            per_switch_links_[src].push_back(link_gid);
-            per_switch_links_[dst].push_back(link_gid);
-            int sw_pair_key = src*numSwPerDCN+dst;
-            if (per_sw_pair_links_.find(sw_pair_key) == per_sw_pair_links_.end()) {
-              per_sw_pair_links_[sw_pair_key] = std::vector<int>();
-              per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-            }
-            else {
-              per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-            }
+            links_.emplace_back(tmp_link);
+            per_sb_pair_links_[src_sb][dst_sb].emplace_back(link_gid);
+            per_s3_pair_links_[src][dst].emplace_back(link_gid);
+            per_switch_links_[src].emplace_back(link_gid);
+            per_switch_links_[dst].emplace_back(link_gid);
             ++link_gid;
             ++cnt;
             if (cnt >= links_per_mb) break;
@@ -132,178 +107,106 @@ void FullTopology::AddLinks() {
   for (int sb=0; sb<numSbPerDcn; ++sb) {
     for (int mb=0; mb<numMbPerSb; ++mb) {
       for (int i=0; i<numS3PerMb; ++i) {
-        int sw3 = sb*numSwPerSb+mb*numSwPerMb+i;
+        int sw3 = sb*numS3PerSb+mb*numS3PerMb+i;
         for (int j=0; j<numS2PerMb; ++j) {
-          int sw2 = sb*numSwPerSb+mb*numSwPerMb+numS3PerMb+j;
+          int sw2 = numS3PerDCN+sb*numS2PerSb+mb*numS2PerMb+numS3PerMb+j;
           // add bidirectional links
           Link tmp_link = {switches_[sw2].gid,
                            switches_[sw3].gid,
                            intraDomainBandwidth,
                            LinkType::up,
                            link_gid};
-          links_.push_back(tmp_link);
-          per_switch_links_[sw2].push_back(link_gid);
-          per_switch_links_[sw3].push_back(link_gid);
-          int sw_pair_key = sw2*numSwPerDCN+sw3;
-          if (per_sw_pair_links_.find(sw_pair_key) == per_sw_pair_links_.end()) {
-            per_sw_pair_links_[sw_pair_key] = std::vector<int>();
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
-          else {
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
+          links_.emplace_back(tmp_link);
+          per_switch_links_[sw2].emplace_back(link_gid);
+          per_switch_links_[sw3].emplace_back(link_gid);
           ++link_gid;
           Link tmp_link2 = {switches_[sw3].gid,
                            switches_[sw2].gid,
                            intraDomainBandwidth,
                            LinkType::down,
                            link_gid};
-          links_.push_back(tmp_link2);
-          per_switch_links_[sw2].push_back(link_gid);
-          per_switch_links_[sw3].push_back(link_gid);
-          sw_pair_key = sw3*numSwPerDCN+sw2;
-          if (per_sw_pair_links_.find(sw_pair_key) == per_sw_pair_links_.end()) {
-            per_sw_pair_links_[sw_pair_key] = std::vector<int>();
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
-          else {
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
+          links_.emplace_back(tmp_link2);
+          per_switch_links_[sw2].emplace_back(link_gid);
+          per_switch_links_[sw3].emplace_back(link_gid);
           ++link_gid;
         }
       }
     }
   }
-  // add S1-S2 links
+  // add virtual source links
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    for (int mb=0; mb<numMbPerSb; ++mb) {
-      for (int i=0; i<numS2PerMb; ++i) {
-        int sw2 = sb*numSwPerSb+mb*numSwPerMb+numS3PerMb+i;
-        for (int j=0; j<numS1PerMb; ++j) {
-          int sw1 = sb*numSwPerSb+mb*numSwPerMb+numS3PerMb+numS2PerMb+j;
-          // add bidirectional links
-          Link tmp_link = {switches_[sw1].gid,
-                           switches_[sw2].gid,
-                           intraDomainBandwidth,
-                           LinkType::up,
-                           link_gid};
-          links_.push_back(tmp_link);
-          per_switch_links_[sw1].push_back(link_gid);
-          per_switch_links_[sw2].push_back(link_gid);
-          int sw_pair_key = sw1*numSwPerDCN+sw2;
-          if (per_sw_pair_links_.find(sw_pair_key) == per_sw_pair_links_.end()) {
-            per_sw_pair_links_[sw_pair_key] = std::vector<int>();
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
-          else {
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
-          ++link_gid;
-          Link tmp_link2 = {switches_[sw2].gid,
-                            switches_[sw1].gid,
-                            intraDomainBandwidth,
-                            LinkType::down,
-                            link_gid};
-          links_.push_back(tmp_link2);
-          per_switch_links_[sw1].push_back(link_gid);
-          per_switch_links_[sw2].push_back(link_gid);
-          sw_pair_key = sw2*numSwPerDCN+sw1;
-          if (per_sw_pair_links_.find(sw_pair_key) == per_sw_pair_links_.end()) {
-            per_sw_pair_links_[sw_pair_key] = std::vector<int>();
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
-          else {
-            per_sw_pair_links_[sw_pair_key].push_back(link_gid);
-          }
-          ++link_gid;
-        }
-      }
-    }
-  }
-  // add virtual links at S3 level
-  for (int sb=0; sb<numSbPerDcn; ++sb) {
-    for (int sw=0; sw<per_sb_switches_[sb][0].size(); ++sw) {
-      int sw_gid = per_sb_switches_[sb][0][sw];
-      Link tmp_link = {switches_[sw_gid].gid,
-                       s3_virtual_switches_[sb],
+    int src_gid = numS3PerDCN + numS2PerDCN + sb;
+    for (int i=0; i<numS2PerSb; ++i) {
+      int sw_gid = numS3PerDCN+numS2PerSb*sb+i;
+      Link tmp_link = {src_gid,
+                       sw_gid,
                        maxBandwidth,
-                       LinkType::vir,
+                       LinkType::src,
                        link_gid};
-      links_.push_back(tmp_link);
-      per_switch_links_[sw_gid].push_back(link_gid);
-      per_switch_links_[s3_virtual_switches_[sb]].push_back(link_gid);
-      ++link_gid;
-      Link tmp_link2 = {s3_virtual_switches_[sb],
-                        switches_[sw_gid].gid,
-                        maxBandwidth,
-                        LinkType::vir,
-                        link_gid};
-      links_.push_back(tmp_link2);
-      per_switch_links_[sw_gid].push_back(link_gid);
-      per_switch_links_[s3_virtual_switches_[sb]].push_back(link_gid);
+      links_.emplace_back(tmp_link);
       ++link_gid;
     }
   }
-  // add virtual links at S2 level
+  // add virtual destination links
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    for (int sw=0; sw<per_sb_switches_[sb][1].size(); ++sw) {
-      int sw_gid = per_sb_switches_[sb][1][sw];
-      Link tmp_link = {switches_[sw_gid].gid,
-                       s2_virtual_switches_[sb],
+    int dst_gid = numS3PerDCN+numS2PerDCN+numSbPerDcn+sb;
+    for (int i=0; i<numS2PerSb; ++i) {
+      int sw_gid = numS3PerDCN+numS2PerSb*sb+i;
+      Link tmp_link = {sw_gid,
+                       dst_gid,
                        maxBandwidth,
-                       LinkType::vir,
+                       LinkType::dst,
                        link_gid};
-      links_.push_back(tmp_link);
-      per_switch_links_[sw_gid].push_back(link_gid);
-      per_switch_links_[s2_virtual_switches_[sb]].push_back(link_gid);
-      ++link_gid;
-      Link tmp_link2 = {s2_virtual_switches_[sb],
-                        switches_[sw_gid].gid,
-                        maxBandwidth,
-                        LinkType::vir,
-                        link_gid};
-      links_.push_back(tmp_link2);
-      per_switch_links_[sw_gid].push_back(link_gid);
-      per_switch_links_[s2_virtual_switches_[sb]].push_back(link_gid);
+      links_.emplace_back(tmp_link);
       ++link_gid;
     }
+  }
+}
+
+std::vector<Path> FullTopology::FindDCNPaths(int src_sw, int dst_sw) {
+  std::vector<Path> paths;
+  // add the direct paths
+  std::vector<int> direct_paths;
+  direct_paths = this->FindLinks(src_sw, dst_sw);
+  for (int link_gid : direct_paths) {
+    Path tmp_path = {{link_gid},
+                     links_[link_gid].src_sw_gid,
+                     links_[link_gid].dst_sw_gid,
+                     -1, -1};
+    paths.emplace_back(tmp_path); // add path to the path list
   }
 }
 
 // add all the paths
 void FullTopology::AddPaths() {
   int path_gid = 0;
-  // initialize the dcn path vectors
-  per_sb_pair_paths_ = std::vector<std::vector<std::vector<int>>>(numSbPerDcn,
-                                                                  std::vector<std::vector<int>>(
-                                                                 numSbPerDcn));
-  // list and store all the DCN paths
-  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
-    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
-      if (dst_sb != src_sb) {
+  // list and store all the paths
+  for (int src_idx = 0; src_idx < sources_.size(); ++src_idx) {
+    for (int dst_idx = 0; dst_idx < destinations_.size(); ++dst_idx) {
+      if (sources_[src_idx] != destinations_[dst_idx]) {
         int index = 0;
         // add the direct paths
         std::vector<int> direct_paths;
-        direct_paths = this->FindLinks(src_sb, dst_sb);
+        direct_paths = this->FindLinks(src_idx, dst_idx);
         for (int link_gid : direct_paths) {
           Path tmp_path = {{link_gid},
                            links_[link_gid].src_sw_gid,
                            links_[link_gid].dst_sw_gid,
                            index, path_gid};
-          paths_.push_back(tmp_path); // add path to the path list
-          per_sb_pair_paths_[src_sb][dst_sb].push_back(
+          paths_.emplace_back(tmp_path); // add path to the path list
+          per_sb_pair_paths_[src_idx][dst_idx].emplace_back(
             path_gid); // add path to per pair paths
-          per_link_paths_[link_gid].push_back(path_gid);
+          per_link_paths_[link_gid].emplace_back(path_gid);
           ++index;
           ++path_gid;
         }
         // add the transit paths
         for (int trans_sb = 0; trans_sb < numSbPerDcn; ++trans_sb) {
-          if ((trans_sb != src_sb) && (trans_sb != dst_sb)) {
+          if ((trans_sb != src_idx) && (trans_sb != dst_idx)) {
             std::vector<int> first_hops;
             std::vector<int> second_hops;
-            first_hops = this->FindLinks(src_sb, trans_sb);
-            second_hops = this->FindLinks(trans_sb, dst_sb);
+            first_hops = this->FindLinks(src_idx, trans_sb);
+            second_hops = this->FindLinks(trans_sb, dst_idx);
             for (int first_gid : first_hops) {
               for (int second_gid : second_hops) {
                 Path new_path = {
@@ -311,11 +214,11 @@ void FullTopology::AddPaths() {
                   links_[first_gid].src_sw_gid,
                   links_[second_gid].dst_sw_gid, index,
                   path_gid};
-                paths_.push_back(new_path);
-                per_sb_pair_paths_[src_sb][dst_sb].push_back(
+                paths_.emplace_back(new_path);
+                per_sb_pair_paths_[src_idx][dst_idx].emplace_back(
                   path_gid);
-                per_link_paths_[first_gid].push_back(path_gid);
-                per_link_paths_[second_gid].push_back(path_gid);
+                per_link_paths_[first_gid].emplace_back(path_gid);
+                per_link_paths_[second_gid].emplace_back(path_gid);
                 ++index;
                 ++path_gid;
               }
@@ -323,212 +226,17 @@ void FullTopology::AddPaths() {
           }
         }
       }
-}
-
-// set the problem scope to DCN level, or S2-S2 level, or intra-domain level
-void FullTopology::SetProblemScope(int scope) {
-  src_sw_group.clear();
-  dst_sw_group.clear();
-  int_sw_group.clear();
-  sw_group.clear();
-  link_group.clear();
-  // determine the problem scope
-  if (wcmp::problem_scope == 0) { // S3-S3
-    // get source switches, destination switches and mid switches
-    for (int sb=0; sb<numSbPerDcn; ++sb) {
-      for (int sw : per_sb_switches_[sb][0]) {
-        sw_group.push_back(sw);
-        int_sw_group.push_back(sw);
-      }
-      for (int sw : per_sb_switches_[sb][3]) {
-        src_sw_group.push_back(sw);
-        dst_sw_group.push_back(sw);
-        sw_group.push_back(sw);
-      }
-    }
-    // get related links
-    // add virtual links
-    for (int sb=0; sb<numSbPerDcn; ++sb) {
-      for (int l : per_switch_links_[s3_virtual_switches_[sb]]) {
-        link_group.push_back(l);
-      }
-    }
-    // add dcn links
-    for (int l=0; l<links_.size(); ++l) {
-      if (links_[l].link_type == LinkType::dcn) {
-        link_group.push_back(l);
-      }
     }
   }
-  else if (wcmp::problem_scope == 1) { // S2-S2
-    // get source switches, destination switches and mid switches
-    for (int sb=0; sb<numSbPerDcn; ++sb) {
-      for (int sw : per_sb_switches_[sb][0]) {
-        sw_group.push_back(sw);
-        int_sw_group.push_back(sw);
-      }
-      for (int sw : per_sb_switches_[sb][1]) {
-        sw_group.push_back(sw);
-        int_sw_group.push_back(sw);
-      }
-      for (int sw : per_sb_switches_[sb][4]) {
-        src_sw_group.push_back(sw);
-        dst_sw_group.push_back(sw);
-        sw_group.push_back(sw);
-      }
-    }
-    // get related links
-    for (int sb=0; sb<numSbPerDcn; ++sb) {
-      // add virtual links
-      for (int l : per_switch_links_[s2_virtual_switches_[sb]]) {
-        link_group.push_back(l);
-      }
-      // add s2-s3 links
-      for (int sw : per_sb_switches_[sb][0]) {
-        for (int l : per_switch_links_[sw]) {
-          if ((links_[l].link_type == LinkType::up) || (links_[l].link_type == LinkType::down)) {
-            link_group.push_back(l);
-          }
-        }
-      }
-    }
-    // add dcn links
-    for (int l=0; l<links_.size(); ++l) {
-      if (links_[l].link_type == LinkType::dcn) {
-        link_group.push_back(l);
-      }
-    }
-  }
-  else if (wcmp::problem_scope == 2) { // S1-S3
-    // get source switches, destination switches and mid switches
-    for (int sb=0; sb<numSbPerDcn; ++sb) {
-      for (int sw : per_sb_switches_[sb][0]) {
-        dst_sw_group.push_back(sw);
-        sw_group.push_back(sw);
-      }
-      for (int sw : per_sb_switches_[sb][1]) {
-        sw_group.push_back(sw);
-        int_sw_group.push_back(sw);
-      }
-      for (int sw : per_sb_switches_[sb][2]) {
-        src_sw_group.push_back(sw);
-        sw_group.push_back(sw);
-        int_sw_group.push_back(sw);
-      }
-    }
-    // get related links
-    for (int sb=0; sb<numSbPerDcn; ++sb) {
-      // add s1-s3 links
-      for (int sw : per_sb_switches_[sb][1]) {
-        for (int l : per_switch_links_[sw]) {
-          link_group.push_back(l);
-        }
-      }
-    }
-  }
-}
-
-// get the group memory occupation
-int GroupSize(std::vector<int> &weights) {
-  int total_size = 0;
-  for (int weight : weights) {
-    total_size += weight;
-  }
-  return total_size;
-}
-
-// helper function for weight reduction
-double CalcDelta(std::vector<int> &weights, std::vector<int> &new_weights) {
-  double max_delta = 0;
-  int total_size = GroupSize(weights);
-  int new_total_size = GroupSize(new_weights);
-  for (int i=0; i<weights.size(); ++i) {
-    double delta = new_weights[i]*total_size/(weights[i]*new_total_size);
-    if (delta > max_delta){
-      max_delta = delta;
-    }
-  }
-  return max_delta;
-}
-
-// helper function for weight reduction
-int ChoosePortToUpdate(std::vector<int> &weights, std::vector<int> &new_weights) {
-  double min_oversub = infinity;
-  int index = -1;
-  int total_size = GroupSize(weights);
-  int new_total_size = GroupSize(new_weights);
-  for (int i=0; i<weights.size(); ++i) {
-    double oversub = (new_weights[i]+1)*total_size/double((new_total_size+1)*weights[i]);
-    if (oversub < min_oversub) {
-      min_oversub = oversub;
-      index = i;
-    }
-  }
-  return index;
-}
-
-// the weight reduction function used in WCMP (eurosys)
-std::vector<int> FullTopology::OriginMethod(std::vector<int> weights) {
-  std::vector<int> new_weights;
-  for (int weight : weights) {
-    new_weights.push_back(weight);
-  }
-  int total_size = GroupSize(new_weights);
-  while (total_size > maxGroupSize) {
-    int non_reducible_size = 0;
-    for (int i=0; i<new_weights.size(); ++i) {
-      if (new_weights[i] == 1) {
-        non_reducible_size += new_weights[i];
-      }
-    }
-    if (non_reducible_size == new_weights.size()) {
-      break;
-    }
-    double reduction_ratio = (maxGroupSize-non_reducible_size)/double(GroupSize(weights));
-    for (int i=0; i<new_weights.size(); ++i) {
-      new_weights[i] = int(weights[i]*reduction_ratio);
-      if (new_weights[i]==0) {
-        new_weights[i] = 1;
-      }
-    }
-    total_size = GroupSize(new_weights);
-  }
-  std::vector<int> results;
-  for (int weight : new_weights) {
-    results.push_back(weight);
-  }
-  int remaining_size = maxGroupSize-GroupSize(new_weights);
-  double min_oversub = CalcDelta(weights, new_weights);
-  for (int k=0; k<remaining_size; ++k) {
-    int index = ChoosePortToUpdate(weights, new_weights);
-    new_weights[index] += 1;
-    if (min_oversub > CalcDelta(weights, new_weights)) {
-      for (int i=0; i<new_weights.size(); ++i) {
-        results[i] = new_weights[i];
-      }
-      min_oversub = CalcDelta(weights, new_weights);
-    }
-  }
-  return results;
-}
-
-// the new weight reduction function
-std::vector<int> FullTopology::NewMethod(std::vector<int> weights) {
-
 }
 
 // constructor function
 FullTopology::FullTopology() {
-  // initial traffic matrix
-  traffic::Trace trace;
-  traffic_matrix_ = trace.GenerateTrafficMatrix(numSbPerDcn,
-    traffic::TrafficPattern::kSparse);
-  trace.ImportTrafficTrace("test");
   // add switches
   AddSwitches();
-  // add DCN links
+  // add links
   AddLinks();
-  // add DCN paths
+  // add paths
   AddPaths();
 
   std::cout << "Topology initialized" << std::endl;
@@ -538,7 +246,7 @@ FullTopology::FullTopology() {
 std::vector<int> FullTopology::FindLinks(int src_sb, int dst_sb) {
   std::vector<int> result;
   for (int link_gid : per_sb_pair_links_[src_sb][dst_sb]) {
-    result.push_back(link_gid);
+    result.emplace_back(link_gid);
   }
   return result;
 }
@@ -560,9 +268,12 @@ void FullTopology::PrintSwitch(int sw) {
                 << " MB" << switches_[sw].middleblock_id
                 << " S1-" << switches_[sw].gid;
       break;
-    case SwitchType::vir:
+    case SwitchType::src:
       std::cout << "SB" << switches_[sw].superblock_id
-//                << " MB" << switches_[sw].middleblock_id
+                << " Virtual-" << switches_[sw].gid;
+      break;
+    case SwitchType::dst:
+      std::cout << "SB" << switches_[sw].superblock_id
                 << " Virtual-" << switches_[sw].gid;
       break;
     case SwitchType::unknown:
@@ -582,9 +293,12 @@ void FullTopology::PrintLink(int l) {
       std::cout << "Up link " << links_[l].gid << ": ";
       break;
     case LinkType::dcn:
-      std::cout << "DCN link " << links_[l].gid << ": ";
+      std::cout << "AbstractTopology link " << links_[l].gid << ": ";
       break;
-    case LinkType::vir:
+    case LinkType::src:
+      std::cout << "Virtual link " << links_[l].gid << ": ";
+      break;
+    case LinkType::dst:
       std::cout << "Virtual link " << links_[l].gid << ": ";
       break;
     case LinkType::unknown:

@@ -11,26 +11,26 @@ find_package (glog REQUIRED)
 find_package (Protobuf REQUIRED)
 
 add_executable(wcmp
-		traffic_trace/Trace.cpp
-		traffic_trace/Trace.h
-		traffic_trace/trace.pb.cc
-		traffic_trace/trace.pb.h
-#		components/Link.cpp
-#		components/Link.h
-#		components/Path.cpp
-#		components/Path.h
-#		components/Switch.cpp
-#		components/Switch.h
-		topology/full/PathBasedLPSolver.cpp
-		topology/full/ArcBasedLPSolver.cpp
-		topology/full/PathBasedILPSolver.cpp
-		topology/full/ArcBasedILPSolver.cpp
+		trace/Trace.cpp
+		trace/Trace.h
+		trace/trace.pb.cc
+		trace/trace.pb.h
 		topology/full/FullTopology.cpp
 		topology/full/FullTopology.h
 		topology/dcnonly/DCNOnlyTopology.cpp
 		topology/dcnonly/DCNOnlyTopology.h
-		topology/DCN.h
+		topology/AbstractTopology.h
+		solver/AbstractSolver.h
+		solver/PathBasedLPSolver.cpp
+		solver/PathBasedLPSolver.h
+		solver/ArcBasedLPSolver.cpp
+		solver/ArcBasedLPSolver.h
+		solver/PathBasedILPSolver.cpp
+		solver/PathBasedILPSolver.h
+		solver/ArcBasedILPSolver.cpp
+		solver/ArcBasedILPSolver.h
 		definitions.h
+		weightReduction.cpp
 		main.cpp)
 
 target_link_libraries(wcmp libscip glog::glog ${PROTOBUF_LIBRARY})
