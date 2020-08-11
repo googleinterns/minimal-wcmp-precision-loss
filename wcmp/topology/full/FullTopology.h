@@ -70,25 +70,6 @@ public:
   void PrintAllLinks();
   void PrintPath(const Path &path);
 
-  // set the problem scope
-  void SetProblemScope(int scope);
-
-  // Use SCIP to find the best traffic allocation method,
-  // follows the LP model on the document.
-  SCIP_RETCODE FindBestDcnRoutingPathLP();
-  SCIP_RETCODE FindBestDcnRoutingArcLP();
-  SCIP_RETCODE FindBestDcnRoutingPathILP();
-  SCIP_RETCODE FindBestDcnRoutingArcILP();
-
-  // Print the traffic allocation details
-  void PathLPResultAnalysis();
-  void ArcLPResultAnalysis();
-  void PathILPResultAnalysis();
-  void ArcILPResultAnalysis();
-
-  // Transfer the original group weight to integer group weight
-  std::vector<int> OriginMethod(std::vector<int> weights);
-  std::vector<int> NewMethod(std::vector<int> weights);
 };
 
 } // namespace full
