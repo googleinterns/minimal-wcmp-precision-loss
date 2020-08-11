@@ -25,6 +25,7 @@ const int numLinkPerSb = 8;
 // the number of s3 switches per SuperBlock
 const int numS3PerSb = numS3PerMb*numMbPerSb;
 
+// the DCN topology only contain the DCN level switches and links
 class DCNOnlyTopology : public AbstractTopology {
 
 private:

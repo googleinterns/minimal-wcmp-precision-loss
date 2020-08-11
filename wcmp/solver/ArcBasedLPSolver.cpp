@@ -198,7 +198,7 @@ SCIP_RETCODE ArcBasedLPSolver::ArcLPCreateConstraints9(
     std::vector<SCIP_VAR *> vars;
     std::vector<SCIP_Real> values;
 
-    // iterate all the paths to check whether contain that link
+    // iterate all the source and destination to sum up the utilization
     for (int src_idx=0; src_idx < sources_.size(); ++src_idx) {
       for (int dst_idx=0; dst_idx < destinations_.size(); ++dst_idx) {
         if (src_idx == dst_idx) continue;
