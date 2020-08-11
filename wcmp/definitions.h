@@ -14,6 +14,7 @@
 #include <sstream>
 #include <algorithm>
 #include <memory>
+#include <limits>
 
 namespace wcmp {
 
@@ -26,7 +27,7 @@ const double intraDomainBandwidth = 100;
 // the virtual link bandwidth
 const double maxBandwidth = 999999;
 // the representation of infinity, used in SCIP
-const double infinity = 1e+20; // std::numeric_limits::max()
+const double infinity = std::numeric_limits<double>::max();
 
 // whether the solver is arc-based
 const bool arc_based = true; // default: path-based
