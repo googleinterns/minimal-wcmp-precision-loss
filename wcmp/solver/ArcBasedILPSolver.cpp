@@ -210,7 +210,6 @@ SCIP_RETCODE ArcBasedILPSolver::ArcILPCreateConstraints2(
         int vsw = sources_[vs];
         for (int i=0; i<per_switch_links_[vsw].size(); ++i) {
           int l = per_switch_links_[vsw][i];
-          std::cout << i << " " << l << " " << src_idx;
           vars.push_back(f[src_idx][dst_idx][l]);
           values.push_back(1);
         }
@@ -414,7 +413,6 @@ SCIP_RETCODE ArcBasedILPSolver::ArcILPCreateConstraints5(
             (links_[l].link_type == LinkType::dst)) continue;
         if (links_[l].dst_sw_gid == sw) continue;
         if (links_[l].link_type != LinkType::dcn) continue;
-        std::cout << dst_idx << " " << sw << " " << l << std::endl;
         cons_5.emplace_back((SCIP_CONS *) nullptr); // add constraint
         std::vector<SCIP_VAR *> vars;
         std::vector<SCIP_Real> values;
@@ -464,10 +462,8 @@ SCIP_RETCODE ArcBasedILPSolver::ArcILPCreateConstraints6(
       cons_6.emplace_back((SCIP_CONS *) nullptr); // add constraint
       std::vector<SCIP_VAR *> vars;
       std::vector<SCIP_Real> values;
-      std::cout << sw << " " << dst_idx << std::endl;
       for (int l : per_switch_links_[sw]) {
         if (links_[l].dst_sw_gid == sw) {
-          std::cout << l << " ";
           for (int src_idx = 0; src_idx < sources_.size(); ++src_idx) {
             vars.push_back(f[src_idx][dst_idx][l]);
             values.push_back(-traffic_matrix_[src_idx * destinations_.size() + dst_idx]);
@@ -480,7 +476,6 @@ SCIP_RETCODE ArcBasedILPSolver::ArcILPCreateConstraints6(
         values[values.size()-1] += traffic_matrix_[src_idx * destinations_.size() + dst_idx];
       }
       // add constraints
-      for (int k =0; k<vars.size(); ++k) std::cout << values[k] << std::endl;
       SCIP_VAR *scip_vars[vars.size()];
       for (int v = 0; v < vars.size(); ++v) scip_vars[v] = vars[v];
       SCIP_Real scip_values[values.size()];
@@ -519,7 +514,6 @@ SCIP_RETCODE ArcBasedILPSolver::ArcILPCreateConstraints9(
     // iterate all the source and destination
     for (int src_idx=0; src_idx < sources_.size(); ++src_idx) {
       for (int dst_idx=0; dst_idx < destinations_.size(); ++dst_idx) {
-        std::cout << src_idx << " " << dst_idx << " " << l << std::endl;
         vars.push_back(f[src_idx][dst_idx][l]);
         values.push_back(-traffic_matrix_[src_idx * destinations_.size() + dst_idx]);
       }
@@ -589,10 +583,10 @@ SCIP_RETCODE ArcBasedILPSolver::FindBestRouting() {
   if (ret != SCIP_OKAY) LOG(ERROR) << "The variable b is wrong.";
   else std::cout << "Variable b created." << std::endl;
 
-//  std::vector<SCIP_CONS *> cons_1;
-//  ret = ArcILPCreateConstraints1(scip, cons_1, f);
-//  if (ret != SCIP_OKAY) LOG(ERROR) << "The equal constraints is wrong.";
-//  else std::cout << "Constraints 1 created." << std::endl;
+  std::vector<SCIP_CONS *> cons_1;
+  ret = ArcILPCreateConstraints1(scip, cons_1, f);
+  if (ret != SCIP_OKAY) LOG(ERROR) << "The equal constraints is wrong.";
+  else std::cout << "Constraints 1 created." << std::endl;
 
   std::vector<SCIP_CONS *> cons_2;
   ret = ArcILPCreateConstraints2(scip, cons_2, f);
@@ -627,9 +621,9 @@ SCIP_RETCODE ArcBasedILPSolver::FindBestRouting() {
   SCIP_CALL((SCIPwriteOrigProblem(scip, "MLU_before.lp", nullptr, FALSE)));
 
   // Release the constraints
-//  for (SCIP_CONS *con : cons_1) {
-//    SCIP_CALL(SCIPreleaseCons(scip, &con));
-//  }
+  for (SCIP_CONS *con : cons_1) {
+    SCIP_CALL(SCIPreleaseCons(scip, &con));
+  }
   for (SCIP_CONS *con : cons_2) {
     SCIP_CALL(SCIPreleaseCons(scip, &con));
   }

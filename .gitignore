@@ -1,2 +1,5 @@
 wcmp/trace/trace.pb.cc
 wcmp/trace/trace.pb.h
+wcmp/solver/IntraDomainILPSolver.cpp
+wcmp/solver/IntraDomainILPSolver.h
+deprecated/

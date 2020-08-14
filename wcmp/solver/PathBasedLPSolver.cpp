@@ -214,7 +214,7 @@ SCIP_RETCODE PathBasedLPSolver::FindBestRouting() {
   return SCIP_OKAY;
 }
 
-//void FullTopology::PathLPResultAnalysis() {
+//void PathBasedLPSolver::PathLPResultAnalysis() {
 //  // traffic amount of each link
 //  std::vector<double> links_load = std::vector<double>(links_.size());
 //  std::cout << "The path with 0 traffic is not printed. " << std::endl;

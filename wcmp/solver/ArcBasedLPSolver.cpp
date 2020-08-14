@@ -121,7 +121,6 @@ SCIP_RETCODE ArcBasedLPSolver::ArcLPCreateConstraints2(
         int vsw = sources_[vs];
         for (int i=0; i<per_switch_links_[vsw].size(); ++i) {
           int l = per_switch_links_[vsw][i];
-          std::cout << i << " " << l << " " << src_idx;
           vars.push_back(f[src_idx][dst_idx][l]);
           values.push_back(1);
         }
@@ -305,6 +304,13 @@ SCIP_RETCODE ArcBasedLPSolver::FindBestRouting() {
   res_u_ = SCIPgetSolVal(scip, sol, u);
   std::cout << "problem result: " << res_u_ << std::endl;
 
+  for (int src_idx = 0; src_idx < sources_.size(); ++src_idx) {
+    for (int dst_idx = 0; dst_idx < destinations_.size(); ++dst_idx) {
+      for (SCIP_VAR *v : f[src_idx][dst_idx]) {
+        SCIP_CALL(SCIPreleaseVar(scip, &v));
+      }
+    }
+  }
   SCIP_CALL(SCIPreleaseVar(scip, &u));
   SCIP_CALL(SCIPfree(&scip));
   return SCIP_OKAY;

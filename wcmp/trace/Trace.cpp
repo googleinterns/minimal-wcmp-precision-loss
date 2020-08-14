@@ -30,12 +30,13 @@ SbTrafficMatrix GenerateRandomMatrix(int num_sb) {
   // initial random
   std::random_device rd;
   std::mt19937 mt(rd());
-  std::uniform_real_distribution<double> dist(0.0, 40.0);
+  std::uniform_real_distribution<double> dist(0.0, 40.0*40);
   // generate matrix
   SbTrafficMatrix matrix = {};
   for (int src_sb = 0; src_sb < num_sb; ++src_sb) {
     for (int dst_sb = 0; dst_sb < num_sb; ++dst_sb) {
-      matrix[src_sb * num_sb + dst_sb] = dist(mt);
+      if (src_sb == dst_sb) matrix[src_sb * num_sb + dst_sb]=0;
+      else matrix[src_sb * num_sb + dst_sb] = dist(mt);
     }
   }
   return matrix;

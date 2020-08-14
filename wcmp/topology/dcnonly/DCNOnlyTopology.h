@@ -14,13 +14,13 @@ namespace topo {
 namespace dcnonly {
 
 // the number of SuperBlock per DCN
-const int numSbPerDcn = 3;
+const int numSbPerDcn = 4;
 // the number of MiddleBlock per SuperBlock
 const int numMbPerSb = 1;
 // the number of s3 per MiddleBlock
-const int numS3PerMb = 8;
+const int numS3PerMb = 2;
 // the number of DCN link per SuperBlock
-const int numLinkPerSb = 8;
+const int numLinkPerSb = 6;
 
 // the number of s3 switches per SuperBlock
 const int numS3PerSb = numS3PerMb*numMbPerSb;

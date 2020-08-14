@@ -32,7 +32,7 @@ const double infinity = std::numeric_limits<double>::max();
 // whether the solver is arc-based
 const bool arc_based = true; // default: path-based
 // whether the solver is integer LP
-const bool integer_LP = false; // default: LP
+const bool integer_LP = true; // default: LP
 
 enum class SwitchType {
   unknown = 0,
@@ -53,27 +53,28 @@ enum class LinkType {
 };
 
 struct Switch {
-  const int superblock_id;
-  const int middleblock_id;
-  const int switch_id;
-  const SwitchType switch_type;
-  const int gid; // global id
+  const int superblock_id;      // superblock index
+  const int middleblock_id;     // local middleblock index
+  const int switch_id;          // local switch index
+  const SwitchType switch_type; // type of the switch
+  const int gid;                // global id
 };
 
 struct Link {
-  const int src_sw_gid;
-  const int dst_sw_gid;
-  const double capacity;
-  const LinkType link_type;
-  const int gid; // global id
+  const int src_sw_gid;     // source switch's gid
+  const int dst_sw_gid;     // destination switch's gid
+  const double capacity;    // capacity of the link
+  const LinkType link_type; // type of the link
+  const int gid;            // global id
 };
 
 struct Path {
-  std::vector<int> link_gid_list;
-  const int source_id;
-  const int destination_id;
-  const int per_pair_id;
-  const int gid; // global id
+  std::vector<int> link_gid_list; // list of links' gid
+  const int source_id;            // source index
+  const int destination_id;       // destination index
+  const int per_pair_id;          // the source and destination pair id
+                                  // used to get the traffic amount from matrix
+  const int gid;                  // global id
 };
 
 class AbstractSolver;

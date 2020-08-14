@@ -151,7 +151,6 @@ SCIP_RETCODE PathBasedILPSolver::PathILPCreateConstraints1(
   // iterate all st pairs
   for (int src_idx = 0; src_idx < sources_.size(); ++src_idx) {
     for (int dst_idx = 0; dst_idx < destinations_.size(); ++dst_idx) {
-      if (src_idx == dst_idx) continue;
       // iterate all switches
       for (int sw=0; sw<switches_.size(); ++sw) {
         if ((switches_[sw].switch_type == SwitchType::src) ||
@@ -173,7 +172,7 @@ SCIP_RETCODE PathBasedILPSolver::PathILPCreateConstraints1(
             }
           }
         }
-          // for destination s3 switch
+        // for destination s3 switch
         else if (switches_[sw].superblock_id == dst_idx) {
           for (int i=0; i<per_switch_links_[sw].size(); ++i) {
             int l = per_switch_links_[sw][i];
@@ -245,7 +244,6 @@ SCIP_RETCODE PathBasedILPSolver::PathILPCreateConstraints2(
         int vsw = sources_[vs];
         for (int i=0; i<per_switch_links_[vsw].size(); ++i) {
           int l = per_switch_links_[vsw][i];
-          std::cout << i << " " << l << " " << src_idx;
           vars.push_back(f[src_idx][dst_idx][l]);
           values.push_back(1);
         }
@@ -449,7 +447,6 @@ SCIP_RETCODE PathBasedILPSolver::PathILPCreateConstraints5(
             (links_[l].link_type == LinkType::dst)) continue;
         if (links_[l].dst_sw_gid == sw) continue;
         if (links_[l].link_type != LinkType::dcn) continue;
-        std::cout << dst_idx << " " << sw << " " << l << std::endl;
         cons_5.emplace_back((SCIP_CONS *) nullptr); // add constraint
         std::vector<SCIP_VAR *> vars;
         std::vector<SCIP_Real> values;

@@ -12,7 +12,7 @@ namespace topo {
 namespace dcnonly {
 
 // the bandwidth of one SuperBlock for the DCN links
-static double test_SBs[27] = {40, 100, 200, 40, 100, 200, 40, 100, 200,
+static double test_SBs[27] = {100, 200, 40, 40, 100, 200, 40, 100, 200,
                               40, 100, 200, 40, 100, 200, 40, 100, 200,
                               40, 100, 200, 40, 100, 200, 40, 100, 200};
 
@@ -23,23 +23,20 @@ void DCNOnlyTopology::AddSwitches() {
   for (int i = 0; i < numSbPerDcn; ++i) {
     for (int j = 0; j < numMbPerSb; ++j) {
       for (int k = 0; k < numS3PerMb; ++k) {
-        Switch tmp_sw = {i, j, k, SwitchType::s3, sw_gid};
-        switches_.emplace_back(tmp_sw);
+        switches_.emplace_back(Switch({i, j, k, SwitchType::s3, sw_gid}));
         ++sw_gid;
       }
     }
   }
   // add virtual source switches
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    Switch tmp_sw = {sb, -1, -1, SwitchType::src, sw_gid};
-    switches_.emplace_back(tmp_sw);
+    switches_.emplace_back(Switch({sb, -1, -1, SwitchType::src, sw_gid}));
     sources_.emplace_back(sw_gid);
     ++sw_gid;
   }
   // add virtual destination switches
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    Switch tmp_sw = {sb, -1, -1, SwitchType::dst, sw_gid};
-    switches_.emplace_back(tmp_sw);
+    switches_.emplace_back(Switch({sb, -1, -1, SwitchType::dst, sw_gid}));
     destinations_.emplace_back(sw_gid);
     ++sw_gid;
   }
@@ -65,12 +62,11 @@ void DCNOnlyTopology::AddLinks() {
             // determine the source and destination s3
             int src = src_sb * numS3PerSb + src_mb * numS3PerMb + i % numS3PerMb;
             int dst = dst_sb * numS3PerSb + dst_mb * numS3PerMb + i % numS3PerMb;
-            Link tmp_link = {switches_[src].gid,
-                             switches_[dst].gid,
-                             std::min(test_SBs[src_sb], test_SBs[dst_sb]),
-                             LinkType::dcn,
-                             link_gid};
-            links_.emplace_back(tmp_link);
+            links_.emplace_back(Link({switches_[src].gid,
+                                     switches_[dst].gid,
+                                     std::min(test_SBs[src_sb], test_SBs[dst_sb]),
+                                     LinkType::dcn,
+                                     link_gid}));
             per_pair_links_[src_sb][dst_sb].emplace_back(link_gid);
             ++link_gid;
             ++cnt;
@@ -85,12 +81,11 @@ void DCNOnlyTopology::AddLinks() {
     int src_gid = numS3PerSb*numSbPerDcn + sb;
     for (int i=0; i<numS3PerSb; ++i) {
       int sw_gid = numS3PerSb*sb+i;
-      Link tmp_link = {src_gid,
-                       sw_gid,
-                       maxBandwidth,
-                       LinkType::src,
-                       link_gid};
-      links_.emplace_back(tmp_link);
+      links_.emplace_back(Link({src_gid,
+                               sw_gid,
+                               maxBandwidth,
+                               LinkType::src,
+                               link_gid}));
       ++link_gid;
     }
   }
@@ -99,12 +94,11 @@ void DCNOnlyTopology::AddLinks() {
     int dst_gid = numS3PerSb*numSbPerDcn+numSbPerDcn+sb;
     for (int i=0; i<numS3PerSb; ++i) {
       int sw_gid = numS3PerSb*sb+i;
-      Link tmp_link = {sw_gid,
-                       dst_gid,
-                       maxBandwidth,
-                       LinkType::dst,
-                       link_gid};
-      links_.emplace_back(tmp_link);
+      links_.emplace_back(Link({sw_gid,
+                               dst_gid,
+                               maxBandwidth,
+                               LinkType::dst,
+                               link_gid}));
       ++link_gid;
     }
   }
@@ -125,12 +119,12 @@ void DCNOnlyTopology::AddPaths() {
         int index = 0;
         // add the direct paths
         for (const int link_gid : per_pair_links_[src_sb][dst_sb]) {
-          Path tmp_path = {{link_gid},
-                           switches_[links_[link_gid].src_sw_gid].superblock_id,
-                           switches_[links_[link_gid].dst_sw_gid].superblock_id,
-                           index,
-                           path_gid};
-          paths_.emplace_back(tmp_path); // add path to the path list
+
+          paths_.emplace_back(Path({{link_gid},
+                                     switches_[links_[link_gid].src_sw_gid].superblock_id,
+                                     switches_[links_[link_gid].dst_sw_gid].superblock_id,
+                                     index,
+                                     path_gid})); // add path to the path list
           per_pair_paths_[src_sb][dst_sb].emplace_back(path_gid); // add path to per pair paths
           ++index;
           ++path_gid;
@@ -140,13 +134,13 @@ void DCNOnlyTopology::AddPaths() {
           if ((trans_sb != src_sb) && (trans_sb != dst_sb)) {
             for (int first_gid : per_pair_links_[src_sb][trans_sb]) {
               for (int second_gid : per_pair_links_[trans_sb][dst_sb]) {
-                Path new_path = {
-                  {first_gid, second_gid},
-                  switches_[links_[first_gid].src_sw_gid].superblock_id,
-                  switches_[links_[second_gid].dst_sw_gid].superblock_id,
-                  index,
-                  path_gid};
-                paths_.emplace_back(new_path);
+
+                paths_.emplace_back(Path({
+                                    {first_gid, second_gid},
+                                    switches_[links_[first_gid].src_sw_gid].superblock_id,
+                                    switches_[links_[second_gid].dst_sw_gid].superblock_id,
+                                    index,
+                                    path_gid}));
                 per_pair_paths_[src_sb][dst_sb].emplace_back(path_gid);
                 ++index;
                 ++path_gid;

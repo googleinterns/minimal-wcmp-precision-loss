@@ -23,8 +23,7 @@ void FullTopology::AddSwitches() {
   for (int sb=0; sb<numSbPerDcn; ++sb) {
     for (int mb=0; mb<numMbPerSb; ++mb) {
       for (int k = 0; k < numS3PerMb; ++k) {
-        Switch tmp_sw = {sb, mb, k, SwitchType::s3, sw_gid};
-        switches_.emplace_back(tmp_sw);
+        switches_.emplace_back(Switch({sb, mb, k, SwitchType::s3, sw_gid}));
         ++sw_gid;
       }
     }
@@ -33,22 +32,19 @@ void FullTopology::AddSwitches() {
   for (int sb=0; sb<numSbPerDcn; ++sb) {
     for (int mb=0; mb<numMbPerSb; ++mb) {
       for (int k = 0; k < numS2PerMb; ++k) {
-        Switch tmp_sw = {sb, mb, k, SwitchType::s2, sw_gid};
-        switches_.emplace_back(tmp_sw);
+        switches_.emplace_back(Switch({sb, mb, k, SwitchType::s2, sw_gid}));
         ++sw_gid;
       }
     }
   }
   // add virtual source switch
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    Switch tmp_sw = {sb, -1, -1, SwitchType::src, sw_gid};
-    switches_.emplace_back(tmp_sw);
+    switches_.emplace_back(Switch({sb, -1, -1, SwitchType::src, sw_gid}));
     ++sw_gid;
   }
   // add virtual destination switch
   for (int sb=0; sb<numSbPerDcn; ++sb) {
-    Switch tmp_sw = {sb, -1, -1, SwitchType::dst, sw_gid};
-    switches_.emplace_back(tmp_sw);
+    switches_.emplace_back(Switch({sb, -1, -1, SwitchType::dst, sw_gid}));
     ++sw_gid;
   }
 }
@@ -84,12 +80,11 @@ void FullTopology::AddLinks() {
             // determine the source and destination s3
             int src = src_sb * numS3PerSb + src_mb * numS3PerMb + src_sw;
             int dst = dst_sb * numS3PerSb + dst_mb * numS3PerMb + (src_sw+gap)%numS3PerMb;
-            Link tmp_link = {switches_[src].gid,
-                             switches_[dst].gid,
-                             std::min(test_SBs[src_sb], test_SBs[dst_sb]),
-                             LinkType::dcn,
-                             link_gid};
-            links_.emplace_back(tmp_link);
+            links_.emplace_back(Link({switches_[src].gid,
+                                     switches_[dst].gid,
+                                     std::min(test_SBs[src_sb], test_SBs[dst_sb]),
+                                     LinkType::dcn,
+                                     link_gid}));
             per_sb_pair_links_[src_sb][dst_sb].emplace_back(link_gid);
             per_s3_pair_links_[src][dst].emplace_back(link_gid);
             per_switch_links_[src].emplace_back(link_gid);
@@ -111,21 +106,19 @@ void FullTopology::AddLinks() {
         for (int j=0; j<numS2PerMb; ++j) {
           int sw2 = numS3PerDCN+sb*numS2PerSb+mb*numS2PerMb+numS3PerMb+j;
           // add bidirectional links
-          Link tmp_link = {switches_[sw2].gid,
-                           switches_[sw3].gid,
-                           intraDomainBandwidth,
-                           LinkType::up,
-                           link_gid};
-          links_.emplace_back(tmp_link);
+          links_.emplace_back(Link({switches_[sw2].gid,
+                                               switches_[sw3].gid,
+                                               intraDomainBandwidth,
+                                               LinkType::up,
+                                               link_gid}));
           per_switch_links_[sw2].emplace_back(link_gid);
           per_switch_links_[sw3].emplace_back(link_gid);
           ++link_gid;
-          Link tmp_link2 = {switches_[sw3].gid,
-                           switches_[sw2].gid,
-                           intraDomainBandwidth,
-                           LinkType::down,
-                           link_gid};
-          links_.emplace_back(tmp_link2);
+          links_.emplace_back(Link({switches_[sw3].gid,
+                                    switches_[sw2].gid,
+                                    intraDomainBandwidth,
+                                    LinkType::down,
+                                    link_gid}));
           per_switch_links_[sw2].emplace_back(link_gid);
           per_switch_links_[sw3].emplace_back(link_gid);
           ++link_gid;
@@ -138,12 +131,11 @@ void FullTopology::AddLinks() {
     int src_gid = numS3PerDCN + numS2PerDCN + sb;
     for (int i=0; i<numS2PerSb; ++i) {
       int sw_gid = numS3PerDCN+numS2PerSb*sb+i;
-      Link tmp_link = {src_gid,
-                       sw_gid,
-                       maxBandwidth,
-                       LinkType::src,
-                       link_gid};
-      links_.emplace_back(tmp_link);
+      links_.emplace_back(Link({src_gid,
+                               sw_gid,
+                               maxBandwidth,
+                               LinkType::src,
+                               link_gid}));
       ++link_gid;
     }
   }
@@ -152,12 +144,11 @@ void FullTopology::AddLinks() {
     int dst_gid = numS3PerDCN+numS2PerDCN+numSbPerDcn+sb;
     for (int i=0; i<numS2PerSb; ++i) {
       int sw_gid = numS3PerDCN+numS2PerSb*sb+i;
-      Link tmp_link = {sw_gid,
-                       dst_gid,
-                       maxBandwidth,
-                       LinkType::dst,
-                       link_gid};
-      links_.emplace_back(tmp_link);
+      links_.emplace_back(Link({sw_gid,
+                               dst_gid,
+                               maxBandwidth,
+                               LinkType::dst,
+                               link_gid}));
       ++link_gid;
     }
   }
@@ -169,11 +160,10 @@ std::vector<Path> FullTopology::FindDCNPaths(int src_sw, int dst_sw) {
   std::vector<int> direct_paths;
   direct_paths = this->FindLinks(src_sw, dst_sw);
   for (int link_gid : direct_paths) {
-    Path tmp_path = {{link_gid},
-                     links_[link_gid].src_sw_gid,
-                     links_[link_gid].dst_sw_gid,
-                     -1, -1};
-    paths.emplace_back(tmp_path); // add path to the path list
+    paths.emplace_back(Path({{link_gid},
+                              links_[link_gid].src_sw_gid,
+                              links_[link_gid].dst_sw_gid,
+                              -1, -1})); // add path to the path list
   }
 }
 
@@ -189,11 +179,10 @@ void FullTopology::AddPaths() {
         std::vector<int> direct_paths;
         direct_paths = this->FindLinks(src_idx, dst_idx);
         for (int link_gid : direct_paths) {
-          Path tmp_path = {{link_gid},
-                           links_[link_gid].src_sw_gid,
-                           links_[link_gid].dst_sw_gid,
-                           index, path_gid};
-          paths_.emplace_back(tmp_path); // add path to the path list
+          paths_.emplace_back(Path({{link_gid},
+                                     links_[link_gid].src_sw_gid,
+                                     links_[link_gid].dst_sw_gid,
+                                     index, path_gid})); // add path to the path list
           per_sb_pair_paths_[src_idx][dst_idx].emplace_back(
             path_gid); // add path to per pair paths
           per_link_paths_[link_gid].emplace_back(path_gid);
@@ -209,12 +198,11 @@ void FullTopology::AddPaths() {
             second_hops = this->FindLinks(trans_sb, dst_idx);
             for (int first_gid : first_hops) {
               for (int second_gid : second_hops) {
-                Path new_path = {
-                  {first_gid, second_gid},
-                  links_[first_gid].src_sw_gid,
-                  links_[second_gid].dst_sw_gid, index,
-                  path_gid};
-                paths_.emplace_back(new_path);
+                paths_.emplace_back(Path({
+                    {first_gid, second_gid},
+                    links_[first_gid].src_sw_gid,
+                    links_[second_gid].dst_sw_gid, index,
+                    path_gid}));
                 per_sb_pair_paths_[src_idx][dst_idx].emplace_back(
                   path_gid);
                 per_link_paths_[first_gid].emplace_back(path_gid);

@@ -19,6 +19,8 @@ add_executable(wcmp
 		topology/full/FullTopology.h
 		topology/dcnonly/DCNOnlyTopology.cpp
 		topology/dcnonly/DCNOnlyTopology.h
+		topology/intradomain/IntraDomainTopology.cpp
+		topology/intradomain/IntraDomainTopology.h
 		topology/AbstractTopology.h
 		solver/AbstractSolver.h
 		solver/PathBasedLPSolver.cpp
@@ -29,6 +31,8 @@ add_executable(wcmp
 		solver/PathBasedILPSolver.h
 		solver/ArcBasedILPSolver.cpp
 		solver/ArcBasedILPSolver.h
+		solver/IntraDomainILPSolver.cpp
+		solver/IntraDomainILPSolver.h
 		definitions.h
 		weightReduction.cpp
 		main.cpp)
