@@ -13,12 +13,11 @@ namespace solver {
 class PathBasedLPSolver : public AbstractSolver {
 
 private:
-
+  // data structures to receive the scip result
   std::vector<std::vector<std::vector<double>>> scip_result_;
-  double res_u_;
-  std::vector<std::vector<std::vector<double>>> res_f_;
 
   // functions to create the Path-based LP model
+  // detailed comments in the function definition
   SCIP_RETCODE PathLPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u);
   SCIP_RETCODE PathLPCreateVariableWeight(SCIP *scip,
                                           std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
@@ -31,8 +30,12 @@ private:
                                                            std::vector<std::vector<std::vector<SCIP_VAR *>>> &x);
 
 public:
+  // the construction function
   PathBasedLPSolver(wcmp::topo::AbstractTopology topology, std::unordered_map<int, double> &trace);
+  // find the best Routing strategy with the input
   SCIP_RETCODE FindBestRouting();
+  // analysis the result of the SCIP
+  void ResultAnalysis();
 
 };
 

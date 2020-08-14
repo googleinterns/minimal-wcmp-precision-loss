@@ -30,7 +30,7 @@ const double maxBandwidth = 999999;
 const double infinity = std::numeric_limits<double>::max();
 
 // whether the solver is arc-based
-const bool arc_based = true; // default: path-based
+const bool arc_based = false;
 // whether the solver is integer LP
 const bool integer_LP = true; // default: LP
 

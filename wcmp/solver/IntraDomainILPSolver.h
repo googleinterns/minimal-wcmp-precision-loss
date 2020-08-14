@@ -15,12 +15,13 @@ class IntraDomainSolver : public AbstractSolver {
 private:
 
   std::vector<std::vector<std::vector<double>>> scip_result_;
+  // the maximum link utilization
   double res_u_;
+  // the weight assignment on a certain link for a certain src-dst
   std::vector<std::vector<std::vector<double>>> res_f_;
-  std::vector<std::vector<std::vector<double>>> res_x_;
-  std::vector<std::vector<std::vector<double>>> res_y_;
 
   // functions to create the Arc-based ILP model
+  // detailed comments in the function definition
   SCIP_RETCODE ArcILPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u);
   SCIP_RETCODE ArcILPCreateVariableF(SCIP *scip,
                                      std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
@@ -58,7 +59,9 @@ private:
                                         std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
 
 public:
+  // the construction function
   IntraDomainSolver(wcmp::topo::AbstractTopology topology, std::unordered_map<int, double> &trace);
+  // find the best Routing strategy with the input
   SCIP_RETCODE FindBestRouting();
 
 };

@@ -30,8 +30,7 @@ double CalcDelta(std::vector<int> &weights, std::vector<int> &new_weights) {
 }
 
 // helper function for weight reduction
-int
-ChoosePortToUpdate(std::vector<int> &weights, std::vector<int> &new_weights) {
+int ChoosePortToUpdate(std::vector<int> &weights, std::vector<int> &new_weights) {
   double min_oversub = wcmp::infinity;
   int index = -1;
   int total_size = GroupSize(weights);

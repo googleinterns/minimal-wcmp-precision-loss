@@ -13,12 +13,15 @@ namespace solver {
 class ArcBasedLPSolver : public AbstractSolver {
 
 private:
-
+  // data structures to receive the scip result
   std::vector<std::vector<std::vector<double>>> scip_result_;
+  // the maximum link utilization
   double res_u_;
+  // the weight assignment on a certain link for a certain src-dst
   std::vector<std::vector<std::vector<double>>> res_f_;
 
   // functions to create the Arc-based LP model
+  // detailed comments in the function definition
   SCIP_RETCODE ArcLPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u);
   SCIP_RETCODE ArcLPCreateVariableF(SCIP *scip,
                                     std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
@@ -34,7 +37,9 @@ private:
                                        std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
 
 public:
+  // the construction function
   ArcBasedLPSolver(wcmp::topo::AbstractTopology topology, std::unordered_map<int, double> &trace);
+  // find the best Routing strategy with the input
   SCIP_RETCODE FindBestRouting();
 
 };

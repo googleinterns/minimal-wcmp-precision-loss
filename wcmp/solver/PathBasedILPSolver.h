@@ -13,14 +13,15 @@ namespace solver {
 class PathBasedILPSolver : public AbstractSolver {
 
 private:
-
+  // data structures to receive the special variable
   std::vector<std::vector<std::vector<double>>> scip_result_;
+  // the maximum link utilization
   double res_u_;
+  // the weight assignment on a certain link for a certain src-dst
   std::vector<std::vector<std::vector<double>>> res_f_;
-  std::vector<std::vector<std::vector<double>>> res_x_;
-  std::vector<std::vector<std::vector<double>>> res_y_;
 
   // functions to create the Path-based ILP model
+  // detailed comments in the function definition
   SCIP_RETCODE PathILPCreateVariableGoal(SCIP *scip, SCIP_VAR *&u);
   SCIP_RETCODE PathILPCreateVariableF(SCIP *scip,
                                       std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
@@ -48,10 +49,6 @@ private:
                                          std::vector<SCIP_CONS *> &cons_5,
                                          std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
                                          std::vector<std::vector<SCIP_VAR *>> &b);
-  SCIP_RETCODE PathILPCreateConstraints5_modified(SCIP *scip,
-                                                  std::vector<SCIP_CONS *> &cons_5,
-                                                  std::vector<std::vector<std::vector<SCIP_VAR *>>> &y,
-                                                  std::vector<std::vector<SCIP_VAR *>> &b);
   SCIP_RETCODE PathILPCreateConstraints6(SCIP *scip,
                                          std::vector<SCIP_CONS *> &cons_6,
                                          std::vector<std::vector<std::vector<SCIP_VAR *>>> &f,
@@ -62,7 +59,9 @@ private:
                                          std::vector<std::vector<std::vector<SCIP_VAR *>>> &f);
 
 public:
+  // the construction function
   PathBasedILPSolver(wcmp::topo::AbstractTopology topology, std::unordered_map<int, double> &trace);
+  // find the best Routing strategy with the input
   SCIP_RETCODE FindBestRouting();
 
 };

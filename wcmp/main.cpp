@@ -27,18 +27,23 @@ int main() {
   // wcmp::topo::intradomain::IntraDomainTopology network;
 
   SCIP_RETCODE retcode;
+  // Arc-based LP
   if (wcmp::arc_based && wcmp::integer_LP) {
     wcmp::solver::ArcBasedLPSolver solver(network, traffic_matrix);
     SCIP_RETCODE retcode = solver.FindBestRouting();
   }
+  // Path-based LP
   else if (!wcmp::arc_based && wcmp::integer_LP) {
     wcmp::solver::PathBasedLPSolver solver(network, traffic_matrix);
     SCIP_RETCODE retcode = solver.FindBestRouting();
+    solver.ResultAnalysis();
   }
+  // Arc-based ILP
   else if (wcmp::arc_based && !wcmp::integer_LP) {
     wcmp::solver::ArcBasedILPSolver solver(network, traffic_matrix);
     SCIP_RETCODE retcode = solver.FindBestRouting();
   }
+  // Path-based ILP
   else if (!wcmp::arc_based && !wcmp::integer_LP) {
     wcmp::solver::PathBasedILPSolver solver(network, traffic_matrix);
     SCIP_RETCODE retcode = solver.FindBestRouting();

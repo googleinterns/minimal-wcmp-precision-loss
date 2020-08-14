@@ -214,108 +214,196 @@ SCIP_RETCODE PathBasedLPSolver::FindBestRouting() {
   return SCIP_OKAY;
 }
 
-//void PathBasedLPSolver::PathLPResultAnalysis() {
-//  // traffic amount of each link
-//  std::vector<double> links_load = std::vector<double>(links_.size());
-//  std::cout << "The path with 0 traffic is not printed. " << std::endl;
-//  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
-//    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
-//      if (src_sb != dst_sb) {
-//        for (int p : per_sb_pair_paths_[src_sb][dst_sb]) {
-//          // print the traffic amount for each link
-//          double traffic_amount =
-//            traffic_matrix_[src_sb * numSbPerDcn + dst_sb] *
-//            scip_result_[src_sb][dst_sb][paths_[p].per_pair_id];
-//          if (traffic_amount > 0) {
-//            std::cout << traffic_amount << " Gbps of demand from u"
-//                      << src_sb << " -> u" << dst_sb
-//                      << " is placed on DCN link "
-//                      << links_[paths_[p].link_gid_list.front()].gid
-//                      << std::endl;
-//          }
-//          // add the traffic to the links' load
-//          if (paths_[p].link_gid_list.size() == 1) {
-//            int first_hop = links_[paths_[p].link_gid_list.front()].gid;
-//            links_load[first_hop] += traffic_amount;
-//          }
-//          else if (paths_[p].link_gid_list.size() == 2) {
-//            int first_hop = links_[paths_[p].link_gid_list.front()].gid;
-//            int second_hop = links_[paths_[p].link_gid_list.back()].gid;
-//            links_load[first_hop] += traffic_amount;
-//            links_load[second_hop] += traffic_amount;
-//          }
-//        }
-//      }
-//  // print the link utilization
-//  for (int l=0; l < links_.size(); ++l) {
-//    std::cout << "Link " << l << ": "
-//              << links_load[l]/links_[l].capacity
-//              << std::endl;
-//  }
-//  // print the WCMP group weight at source s3 -> destination SB level
-//  std::unordered_map<int, std::vector<std::pair<int, double>>> assignment;
-//  std::unordered_map<int, std::vector<std::pair<int, double>>>::iterator it;
-//  for (int src_sb = 0; src_sb < numSbPerDcn; ++src_sb)
-//    for (int dst_sb = 0; dst_sb < numSbPerDcn; ++dst_sb)
-//      if (src_sb != dst_sb) {
-//        for (int p : per_sb_pair_paths_[src_sb][dst_sb]) {
-//          int src_sw = paths_[p].src_sw_gid;
-//          int key = src_sw*numSbPerDcn + dst_sb;
-//          int link_gid = paths_[p].link_gid_list.front();
-//          double traffic_amount =
-//            traffic_matrix_[src_sb * numSbPerDcn + dst_sb] *
-//            scip_result_[src_sb][dst_sb][paths_[p].per_pair_id];
-//          // add the traffic amount to the group
-//          it = assignment.find(key);
-//          if (it == assignment.end()) { // new key
-//            std::vector<std::pair<int, double>> new_vec;
-//            new_vec.emplace_back(std::make_pair(link_gid, traffic_amount));
-//            assignment[key] = new_vec;
-//          }
-//          else { // existing key
-//            assignment[key].emplace_back(std::make_pair(link_gid, traffic_amount));
-//          }
-//        }
-//      }
-//
-//  // print the WCMP group that serves the original traffic from its own
-//  for (it=assignment.begin(); it!=assignment.end(); ++it) {
-//    // set group vector
-//    std::unordered_map<int, double> weights;
-//    int src_sw = it->first / numSbPerDcn;
-//    int dst_sb = it->first % numSbPerDcn;
-//
-//    double sum_weight = 0;
-//    std::unordered_map<int, double>::iterator iter;
-//    for (std::pair<int, double> p : it->second) {
-//      int link = p.first;
-//      iter = weights.find(link);
-//      if (iter == weights.end()) {
-//        weights[link] = p.second;
-//        sum_weight += p.second;
-//      }
-//      else {
-//        weights[link] += p.second;
-//        sum_weight += p.second;
-//      }
-//    }
-//    if (sum_weight <= 0) continue;
-//    std::cout << "Group Assignment for Switch " << src_sw << " -> "
-//              << "SuperBlock " << dst_sb << " " << std::endl;
-//    std::vector<int> double_weight;
-//    std::vector<int> integer_weight;
-//    for (iter=weights.begin(); iter!=weights.end(); ++iter) {
-//      std::cout << "link " << iter->first << ": " << iter->second/sum_weight*127 << std::endl;
-//      double_weight.push_back(round(iter->second*1000));
-//    }
-//    integer_weight = EurosysMethod(double_weight);
-//    int cnt = 0;
-//    for (iter=weights.begin(); iter!=weights.end(); ++iter) {
-//      std::cout << "link " << iter->first << ": " << integer_weight[cnt] << std::endl;
-//      ++cnt;
-//    }
-//  }
-//}
+// get the group memory occupation
+int GroupSize(const std::vector<int> &weights) {
+  int total_size = 0;
+  for (const int weight : weights) {
+    total_size += weight;
+  }
+  return total_size;
+}
+
+// helper function for weight reduction
+double CalcDelta(std::vector<int> &weights, std::vector<int> &new_weights) {
+  double max_delta = 0;
+  int total_size = GroupSize(weights);
+  int new_total_size = GroupSize(new_weights);
+  for (int i = 0; i < weights.size(); ++i) {
+    if (weights[i] == 0) continue;
+    double delta = new_weights[i] * total_size / (weights[i] * new_total_size);
+    if (delta > max_delta) {
+      max_delta = delta;
+    }
+  }
+  return max_delta;
+}
+
+// helper function for weight reduction
+int ChoosePortToUpdate(std::vector<int> &weights, std::vector<int> &new_weights) {
+  double min_oversub = wcmp::infinity;
+  int index = -1;
+  int total_size = GroupSize(weights);
+  int new_total_size = GroupSize(new_weights);
+  for (int i = 0; i < weights.size(); ++i) {
+    double oversub = (new_weights[i] + 1) * total_size /
+                     double((new_total_size + 1) * weights[i]);
+    if (oversub < min_oversub) {
+      min_oversub = oversub;
+      index = i;
+    }
+  }
+  return index;
+}
+
+// the weight reduction function used in WCMP (eurosys)
+std::vector<int> EurosysMethod(std::vector<int> weights) {
+  std::vector<int> new_weights;
+  for (const int weight : weights) {
+    new_weights.emplace_back(weight);
+  }
+  int total_size = GroupSize(new_weights);
+  while (total_size > maxGroupSize) {
+    int non_reducible_size = 0;
+    for (int i = 0; i < new_weights.size(); ++i) {
+      if (new_weights[i] == 1) {
+        non_reducible_size += new_weights[i];
+      }
+    }
+    if (non_reducible_size == new_weights.size()) {
+      break;
+    }
+    double reduction_ratio =
+      (maxGroupSize - non_reducible_size) / double(GroupSize(weights));
+    for (int i = 0; i < new_weights.size(); ++i) {
+      new_weights[i] = int(weights[i] * reduction_ratio);
+      if (new_weights[i] == 0) {
+        new_weights[i] = 1;
+      }
+    }
+    total_size = GroupSize(new_weights);
+  }
+  std::vector<int> results;
+  for (const int weight : new_weights) {
+    results.push_back(weight);
+  }
+  int remaining_size = maxGroupSize - GroupSize(new_weights);
+  double min_oversub = CalcDelta(weights, new_weights);
+  for (int k = 0; k < remaining_size; ++k) {
+    int index = ChoosePortToUpdate(weights, new_weights);
+    new_weights[index] += 1;
+    if (min_oversub > CalcDelta(weights, new_weights)) {
+      for (int i = 0; i < new_weights.size(); ++i) {
+        results[i] = new_weights[i];
+      }
+      min_oversub = CalcDelta(weights, new_weights);
+    }
+  }
+  return results;
+}
+
+void PathBasedLPSolver::ResultAnalysis() {
+  // traffic amount of each link
+  std::vector<double> links_load = std::vector<double>(links_.size());
+  std::cout << "The path with 0 traffic is not printed. " << std::endl;
+  for (int src_sb = 0; src_sb < sources_.size(); ++src_sb)
+    for (int dst_sb = 0; dst_sb < destinations_.size(); ++dst_sb)
+      if (src_sb != dst_sb) {
+        for (int p : per_pair_paths_[src_sb][dst_sb]) {
+          // print the traffic amount for each link
+          double traffic_amount =
+            traffic_matrix_[src_sb * destinations_.size() + dst_sb] *
+            scip_result_[src_sb][dst_sb][paths_[p].per_pair_id];
+          if (traffic_amount > 0) {
+            std::cout << traffic_amount << " Gbps of demand from u"
+                      << src_sb << " -> u" << dst_sb
+                      << " is placed on DCN link "
+                      << links_[paths_[p].link_gid_list.front()].gid
+                      << std::endl;
+          }
+          // add the traffic to the links' load
+          if (paths_[p].link_gid_list.size() == 1) {
+            int first_hop = links_[paths_[p].link_gid_list.front()].gid;
+            links_load[first_hop] += traffic_amount;
+          }
+          else if (paths_[p].link_gid_list.size() == 2) {
+            int first_hop = links_[paths_[p].link_gid_list.front()].gid;
+            int second_hop = links_[paths_[p].link_gid_list.back()].gid;
+            links_load[first_hop] += traffic_amount;
+            links_load[second_hop] += traffic_amount;
+          }
+        }
+      }
+  // print the link utilization
+  for (int l=0; l < links_load.size(); ++l) {
+    std::cout << "Link " << l << ": "
+              << links_load[l]/links_[l].capacity
+              << std::endl;
+  }
+  // print the WCMP group weight at source s3 -> destination SB level
+  std::unordered_map<int, std::vector<std::pair<int, double>>> assignment;
+  std::unordered_map<int, std::vector<std::pair<int, double>>>::iterator it;
+  for (int src_sb = 0; src_sb < sources_.size(); ++src_sb)
+    for (int dst_sb = 0; dst_sb < destinations_.size(); ++dst_sb)
+      if (src_sb != dst_sb) {
+        for (int p : per_pair_paths_[src_sb][dst_sb]) {
+          int src_sw = paths_[p].source_id;
+          int key = src_sw*destinations_.size() + dst_sb;
+          int link_gid = paths_[p].link_gid_list.front();
+          double traffic_amount =
+            traffic_matrix_[src_sb * destinations_.size() + dst_sb] *
+            scip_result_[src_sb][dst_sb][paths_[p].per_pair_id];
+          // add the traffic amount to the group
+          it = assignment.find(key);
+          if (it == assignment.end()) { // new key
+            std::vector<std::pair<int, double>> new_vec;
+            new_vec.emplace_back(std::make_pair(link_gid, traffic_amount));
+            assignment[key] = new_vec;
+          }
+          else { // existing key
+            assignment[key].emplace_back(std::make_pair(link_gid, traffic_amount));
+          }
+        }
+      }
+
+  // print the WCMP group that serves the original traffic from its own
+  for (it=assignment.begin(); it!=assignment.end(); ++it) {
+    // set group vector
+    std::unordered_map<int, double> weights;
+    int src_sw = it->first / destinations_.size();
+    int dst_sb = it->first % destinations_.size();
+
+    double sum_weight = 0;
+    std::unordered_map<int, double>::iterator iter;
+    for (std::pair<int, double> p : it->second) {
+      int link = p.first;
+      iter = weights.find(link);
+      if (iter == weights.end()) {
+        weights[link] = p.second;
+        sum_weight += p.second;
+      }
+      else {
+        weights[link] += p.second;
+        sum_weight += p.second;
+      }
+    }
+    if (sum_weight <= 0) continue;
+    std::cout << "Group Assignment for Switch " << src_sw << " -> "
+              << "SuperBlock " << dst_sb << " " << std::endl;
+    std::vector<int> double_weight;
+    std::vector<int> integer_weight;
+    for (iter=weights.begin(); iter!=weights.end(); ++iter) {
+      std::cout << "link " << iter->first << ": " << iter->second/sum_weight*127 << std::endl;
+      double_weight.push_back(round(iter->second*1000));
+    }
+    integer_weight = EurosysMethod(double_weight);
+    int cnt = 0;
+    std::cout << "After Weight Reduction" << std::endl;
+    for (iter=weights.begin(); iter!=weights.end(); ++iter) {
+      std::cout << "    link " << iter->first << ": " << integer_weight[cnt] << std::endl;
+      ++cnt;
+    }
+  }
+}
 
 } // namespace solver
 } // namespace wcmp
